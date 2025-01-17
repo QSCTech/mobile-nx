@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">mobile-nx</string>
+    <string name="title_activity_main">mobile-nx</string>
+    <string name="package_name">com.zjuqsc.nx</string>
+    <string name="custom_url_scheme">com.zjuqsc.nx</string>
+</resources>
