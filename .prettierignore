@@ -1,5 +1,8 @@
-src-tauri
 node_modules
+
+# native folders
+android
+ios
 
 # npm will format theses files
 package.json
