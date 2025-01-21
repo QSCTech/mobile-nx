@@ -1,8 +1,12 @@
 import { App } from '@capacitor/app'
-import { Device } from '@capacitor/device'
+import { Device, DeviceInfo } from '@capacitor/device'
 
+/**平台信息。在初始化后才有效 */
+export let appPlatform: DeviceInfo['platform'] = 'web'
 export function initCapacitorApp() {
   Device.getInfo().then((info) => {
+    appPlatform = info.platform
+    import('./local.test').finally(console.error)
     if (info.platform === 'web') return
 
     App.addListener('backButton', (ev) => {

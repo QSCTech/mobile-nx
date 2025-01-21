@@ -1,6 +1,7 @@
 # Explicit local files
-/local.*
 *.env
+local.*
+/*.local
 
 # dependencies
 node_modules/
