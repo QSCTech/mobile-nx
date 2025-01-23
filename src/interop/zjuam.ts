@@ -56,9 +56,13 @@ export class ZjuamService {
   ) {
     const rawNxFetch = nxFetch
     const extendMethods: Record<string, any> = {}
+    const thisService = this
     for (const [key, rawMethod] of Object.entries(nxFetch))
-      extendMethods[key] = (...args: any[]) =>
-        this.loginIfExpired().then(() => rawMethod(...args))
+      extendMethods[key] = async function (...args: any[]) {
+        await thisService.loginIfExpired()
+        return rawMethod.apply(this, args)
+      }
+
     this.nxFetch = Object.assign(
       (
         input: Parameters<typeof nxFetch>[0],
@@ -82,36 +86,36 @@ export class ZjuamService {
     return null
   }
 
-  /**登录成功判定 */
-  static readonly loginSuccessRegex = /[?&]ticket=/
+  public static readonly loginUrlRegex = /https?:\/\/zjuam\.zju\.edu\.cn/
+
   /**立即重新登录。成功返回最终服务重定向地址（跟随zjuam登录成功302），失败异步抛出错误。 */
   public async login(): Promise<string> {
     const entryResp = await nxFetch.get(getEntryUrl(this.params), {
       headers: {
         Origin: 'https://zjuam.zju.edu.cn',
       },
-      credentials: 'include',
+      preserveMethodInRedirects: false,
     })
+    /**打开登录页面，zjuam重定向得到的最终地址 */
+    const postUrl = getRawUrl(entryResp.url)
+    if (!postUrl.match(ZjuamService.loginUrlRegex)) {
+      // “记住我”生效，直接登录成功
+      this.lastLoginTime = new Date()
+      return postUrl
+    }
+
     const respText = await entryResp.text()
     const execution = respText.match(
       /<input type="hidden" name="execution" value="(?<execution>.+)"/,
     )?.groups?.execution
     if (!execution) throw new Error('获取execution失败')
-    /**打开登录页面，zjuam重定向得到的最终地址 */
-    const postUrl = getRawUrl(entryResp.url)
 
-    if (postUrl.match(ZjuamService.loginSuccessRegex)) {
-      // “记住我”生效，访问登录页面直接登录成功
-      this.lastLoginTime = new Date()
-      return postUrl
-    }
     // 获取用户名密码
     const { username, password } = await requestCredential(this)
 
     // 获取公钥
     const { exponent, modulus } = (await (
       await nxFetch.get('https://zjuam.zju.edu.cn/cas/v2/getPubKey', {
-        credentials: 'include',
         headers: { Referer: postUrl, Origin: 'https://zjuam.zju.edu.cn' },
       })
     ).json()) as UpstreamPubKey
@@ -124,21 +128,23 @@ export class ZjuamService {
       .padStart(128, '0')
 
     const loginResp = await nxFetch.postUrlEncoded(postUrl, {
-      credentials: 'include',
-      body: {
+      body: new URLSearchParams({
         username,
         password: encPassword,
         _eventId: 'submit',
         execution,
         authcode: '',
         rememberMe: 'false',
-      },
+      }),
       headers: {
         Referer: postUrl,
+        Origin: 'https://zjuam.zju.edu.cn',
       },
+      preserveMethodInRedirects: false, // 登录后若重定向则不再次发送凭据
     })
     const loginUrl = getRawUrl(loginResp.url)
-    if (loginUrl.match(ZjuamService.loginSuccessRegex)) {
+    if (!loginUrl.match(ZjuamService.loginUrlRegex)) {
+      //登录成功
       this.lastLoginTime = new Date()
       return loginUrl
     }
@@ -149,14 +155,13 @@ export class ZjuamService {
       errorHtml.match(/allowLoginTime\s*=\s*'(?<allowDate>.+)'/)?.groups ?? {}
     if (allowDate) {
       const allowTimestamp = Date.parse(allowDate + '+0800').valueOf() //(上游)时区为UTC+8
-      const nowTimestamp = Date.now()
-      const waitSeconds = Math.ceil((allowTimestamp - nowTimestamp) / 1000)
+      const waitSeconds = Math.ceil((allowTimestamp - Date.now()) / 1000)
       error = `失败次数太多，请在 ${waitSeconds}s 重试`
     } else
       error =
         errorHtml.match(/<span id="msg">(?<errMsg>.*)<\/span>/)?.groups
           ?.errMsg ?? error
-    console.error('登录失败', this, error, errorHtml)
+    console.error('登录失败', this, error, loginUrl)
     throw new Error('登录失败: ' + error)
   }
 }

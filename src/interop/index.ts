@@ -6,7 +6,8 @@ export let appPlatform: DeviceInfo['platform'] = 'web'
 export function initCapacitorApp() {
   Device.getInfo().then((info) => {
     appPlatform = info.platform
-    import('./local.test').finally(console.error)
+    console.warn('platform:', appPlatform)
+
     if (info.platform === 'web') return
 
     App.addListener('backButton', (ev) => {
