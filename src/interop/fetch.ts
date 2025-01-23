@@ -1,6 +1,7 @@
-import { CapacitorHttp } from '@capacitor/core'
+import { CapacitorCookies, CapacitorHttp } from '@capacitor/core'
 import { appPlatform } from '.'
 import { isNode } from './env'
+import '../utils/extendHeaders'
 
 let cookieJar: import('tough-cookie').CookieJar | null = null
 // node环境不会自动保存cookie，手动跟踪
@@ -33,27 +34,10 @@ async function nxFetchBase(
   init?: NxFetchInit,
   /**剩余允许的重定向次数。0表示不允许重定向。
    *
-   * **此参数仅在capacitor上支持**，若超过重定向次数返回最后一次响应，不报错。
+   * **此参数仅在capacitor/node上支持**，若超过重定向次数返回最后一次响应，不报错。
    */
   redirectLeft = 10,
 ): Promise<Response> {
-  if (cookieJar) {
-    console.warn('nxFetch: using native fetch', input)
-    const { headers, ...otherProps } = init ?? {}
-    const h = new Headers(headers)
-    const c = cookieJar.getCookieStringSync(input)
-    if (c) h.append('cookie', c)
-    const resp = await globalThis.fetch(input, { headers: h, ...otherProps })
-    resp.headers
-      .getSetCookie()
-      .forEach((s) => cookieJar.setCookieSync(s, resp.url))
-    return resp
-  } else if (appPlatform === 'web') {
-    //TODO 用本地开发服务器代理请求
-    console.warn('nxFetch: using web fetch on web platform', input)
-    return await globalThis.fetch(input, init)
-  }
-
   const {
     method,
     headers: reqHeaders,
@@ -61,12 +45,64 @@ async function nxFetchBase(
     preserveMethodInRedirects = true,
   } = init ?? {}
   const h = new Headers(reqHeaders)
-  if (!h.has('user-agent'))
-    //添加默认UA
-    h.set(
-      'user-agent',
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 Edg/132.0.0.0',
-    )
+  //添加默认UA
+  h.setDefault(
+    'user-agent',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 Edg/132.0.0.0',
+  )
+  h.setDefault('accept', '*/*')
+  h.setDefault('accept-language', 'zh-CN,zh;q=0.9,en;q=0.8')
+
+  function checkRedirect(resp: Response): Promise<Response> | null {
+    if ([301, 302, 303, 307, 308].includes(resp.status) && redirectLeft > 0) {
+      redirectLeft--
+      const location = resp.headers.get('location')
+      if (!location) throw new Error('Redirect without location header')
+
+      if (!preserveMethodInRedirects || status === 303)
+        // 转为GET
+        return nxFetch(
+          location,
+          {
+            method: 'GET',
+            preserveMethodInRedirects,
+            headers: toLiteral(h),
+          },
+          redirectLeft,
+        )
+
+      //保留原始请求方法和正文
+      return nxFetch(
+        location,
+        { method, body, preserveMethodInRedirects, headers: reqHeaders },
+        redirectLeft,
+      )
+    }
+    return null
+  }
+
+  if (cookieJar) {
+    //node native fetch
+    const { headers, ...otherProps } = init ?? {}
+    const h = new Headers(headers)
+    const c = cookieJar.getCookieStringSync(input)
+    if (c) h.append('cookie', c)
+    const resp = await globalThis.fetch(input, {
+      headers: h,
+      redirect: 'manual',
+      ...otherProps,
+    })
+    resp.headers
+      .getSetCookie()
+      .forEach((s) => cookieJar.setCookieSync(s, resp.url))
+    const r = checkRedirect(resp)
+    if (r) return await r
+
+    return resp
+  } else if (appPlatform === 'web') {
+    //TODO 用本地开发服务器代理请求
+    return await globalThis.fetch(input, init)
+  }
 
   let b: Parameters<(typeof CapacitorHttp)['request']>[0]['data'] = body
   if (body instanceof URLSearchParams) {
@@ -103,39 +139,16 @@ async function nxFetchBase(
     dataType: body instanceof FormData ? 'formData' : undefined,
     disableRedirects: true, // 即使设为false也无法自动重定向
   })
-  const respH = new Headers(respHeaders)
-  if ([301, 302, 303, 307, 308].includes(status) && redirectLeft > 0) {
-    //手动重定向
-    redirectLeft--
-    const location = respH.get('location')
-    if (!location) throw new Error('Redirect without location header')
 
-    if (!preserveMethodInRedirects || status === 303)
-      // 转为GET
-      return nxFetch(
-        location,
-        {
-          method: 'GET',
-          preserveMethodInRedirects,
-          headers: reqHeaders,
-        },
-        redirectLeft,
-      )
-
-    //保留原始请求方法和正文
-    return nxFetch(
-      location,
-      { method, body, preserveMethodInRedirects, headers: reqHeaders },
-      redirectLeft,
-    )
-  }
+  const r = checkRedirect(new Response(null, { headers: respHeaders, status }))
+  if (r) return await r //重定向
 
   let result
   if (typeof respData === 'string')
-    result = new Response(respData, { headers: respH, status })
+    result = new Response(respData, { headers: respHeaders, status })
   else if (Reflect.getPrototypeOf(respData) === Object.prototype)
     // json字面量
-    result = Response.json(respData, { headers: respH, status })
+    result = Response.json(respData, { headers: respHeaders, status })
   else throw new TypeError('Unsupported response data type')
 
   Reflect.defineProperty(result, 'url', {
@@ -207,11 +220,18 @@ export function getRawUrl(interceptedUrl: string) {
 }
 
 if (import.meta.env?.DEV) {
-  // vite开发环境下把nxFetch暴露到全局对象上
-  Object.defineProperty(globalThis, 'nxFetch', {
-    configurable: true,
-    enumerable: false,
-    value: nxFetch,
-  })
-  console.warn('DEV mode: nxFetch is exposed on', globalThis)
-}
+  // vite开发环境下，把nxFetch等暴露到全局对象上以便调试
+  function getPropertyDescriptor<T>(value: T): PropertyDescriptor {
+    return {
+      configurable: true,
+      enumerable: false,
+      value,
+    }
+  }
+  const exposedProperties = {
+    nxFetch: getPropertyDescriptor(nxFetch),
+    CapacitorCookies: getPropertyDescriptor(CapacitorCookies),
+  }
+  Object.defineProperties(globalThis, exposedProperties)
+  console.warn('DEV mode: properties exposed', exposedProperties)
+} else console.log('PROD mode: no properties exposed')

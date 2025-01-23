@@ -8,7 +8,7 @@ export type Credential = {
 export async function requestCredential(
   service: ZjuamService,
 ): Promise<Credential> {
-  if (!service) console.warn('requestCredential:', service)
+  console.warn('requestCredential from:', service)
 
   const username = env('VITE_USERNAME')
   const password = env('VITE_PASSWORD')

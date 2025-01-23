@@ -3,6 +3,10 @@
 local.*
 /*.local
 
+# file that appears when running `ionic cap run android -l`
+# It gets deleted when the process is killed.
+AndroidManifest.xml.orig
+
 # dependencies
 node_modules/
 

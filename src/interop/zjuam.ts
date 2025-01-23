@@ -64,11 +64,12 @@ export class ZjuamService {
       }
 
     this.nxFetch = Object.assign(
-      (
+      async (
         input: Parameters<typeof nxFetch>[0],
         init: Parameters<typeof nxFetch>[1],
       ) => {
-        return this.loginIfExpired().then(() => rawNxFetch(input, init))
+        await this.loginIfExpired()
+        return await rawNxFetch(input, init)
       },
       extendMethods as any,
     )
@@ -90,15 +91,12 @@ export class ZjuamService {
 
   /**立即重新登录。成功返回最终服务重定向地址（跟随zjuam登录成功302），失败异步抛出错误。 */
   public async login(): Promise<string> {
-    const entryResp = await nxFetch.get(getEntryUrl(this.params), {
-      headers: {
-        Origin: 'https://zjuam.zju.edu.cn',
-      },
-      preserveMethodInRedirects: false,
-    })
+    console.log('尝试登录服务', this)
+    const entryResp = await nxFetch.get(getEntryUrl(this.params))
     /**打开登录页面，zjuam重定向得到的最终地址 */
     const postUrl = getRawUrl(entryResp.url)
     if (!postUrl.match(ZjuamService.loginUrlRegex)) {
+      console.log('记住登录生效', this)
       // “记住我”生效，直接登录成功
       this.lastLoginTime = new Date()
       return postUrl
@@ -115,9 +113,7 @@ export class ZjuamService {
 
     // 获取公钥
     const { exponent, modulus } = (await (
-      await nxFetch.get('https://zjuam.zju.edu.cn/cas/v2/getPubKey', {
-        headers: { Referer: postUrl, Origin: 'https://zjuam.zju.edu.cn' },
-      })
+      await nxFetch.get('https://zjuam.zju.edu.cn/cas/v2/getPubKey')
     ).json()) as UpstreamPubKey
     const exponentBigInt = BigInt('0x' + exponent)
     const modulusBigInt = BigInt('0x' + modulus)
@@ -136,15 +132,11 @@ export class ZjuamService {
         authcode: '',
         rememberMe: 'false',
       }),
-      headers: {
-        Referer: postUrl,
-        Origin: 'https://zjuam.zju.edu.cn',
-      },
       preserveMethodInRedirects: false, // 登录后若重定向则不再次发送凭据
     })
     const loginUrl = getRawUrl(loginResp.url)
     if (!loginUrl.match(ZjuamService.loginUrlRegex)) {
-      //登录成功
+      console.log('登录成功', this)
       this.lastLoginTime = new Date()
       return loginUrl
     }
