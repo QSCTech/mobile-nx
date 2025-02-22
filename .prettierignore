@@ -19,5 +19,5 @@ tsconfig.*
 *.bat
 *.sh
 
-!.github/
 .*
+!.github/
