@@ -28,9 +28,7 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src",
-    "local.*.ts",
-    "local.test.ts.dis"
+    "src"
   ],
   "references": [
     {
