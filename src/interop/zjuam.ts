@@ -67,19 +67,23 @@ export class ZjuamService {
     public readonly preserveTicket = false,
   ) {
     const rawNxFetch = nxFetch
-    const extendMethods: Record<string, any> = {}
+    const extendMethods: Record<string, unknown> = {}
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const thisService = this
     for (const [key, rawMethod] of Object.entries(nxFetch))
-      extendMethods[key] = async function (...args: any[]) {
+      extendMethods[key] = async function (...args: unknown[]) {
         await thisService.loginIfExpired()
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         return rawMethod.apply(this, args)
       }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.nxFetch = Object.assign(
       async (...args: Parameters<typeof nxFetch>) => {
         await this.loginIfExpired()
         return await rawNxFetch(...args)
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       extendMethods as any,
     )
   }
@@ -191,4 +195,3 @@ export class ZjuamService {
     throw new Error('登录失败: ' + error)
   }
 }
-
