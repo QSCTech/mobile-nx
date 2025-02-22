@@ -1,9 +1,9 @@
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [$default-branch]
+    branches: [capacitor,main]
   push:
-    branches: [$default-branch]
+    branches: [capacitor,main]
 
 jobs:
   build:
