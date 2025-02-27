@@ -6,7 +6,7 @@
   "scripts": {
     "format": "prettier --write .",
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && esbuild --target=esnext --format=esm --bundle --outdir=dist --minify extensionHelper.ts",
     "lint": "eslint .",
     "dev-android": "ionic cap run android -l --external"
   },
