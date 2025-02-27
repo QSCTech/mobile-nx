@@ -40,9 +40,7 @@ function getEntryUrl(params: SupportedParams) {
     return `https://zjuam.zju.edu.cn/cas/login?${new URLSearchParams(params)}`
   else if ('client_id' in params)
     //oauth2会被重定向到https://zjuam.zju.edu.cn/cas/login?service=http%3A%2F%2Fzjuam.zju.edu.cn%2Fcas%2Foauth2.0%2FcallbackAuthorize
-    return `https://zjuam.zju.edu.cn/cas/oauth2.0/authorize?${new URLSearchParams(
-      params,
-    )}`
+    return `https://zjuam.zju.edu.cn/cas/oauth2.0/authorize?${new URLSearchParams(params)}`
   else if ('follow' in params) return params.follow
 
   throw new Error('不支持的zjuam入口参数')
