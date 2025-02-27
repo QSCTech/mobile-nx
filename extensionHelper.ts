@@ -10,9 +10,6 @@ import type { ExtensionAPIs } from '@/extension/ExtensionWidgetCapability'
 const version = '0.1.0'
 type NxType = {
   version: typeof version
-  caniuse(
-    identifier: string,
-  ): { available: boolean; version: string } | undefined
 } & {
   [k in keyof ExtensionAPIs]: (
     ...args: Parameters<ExtensionAPIs[k]>
@@ -25,17 +22,8 @@ let traceId = 0
 function newTraceId() {
   return String(++traceId)
 }
-const availableAPIs = { ping: '0.1.0', setWidgetHeight: '0.1.0' } as const
 const nxObj = {
   version,
-  caniuse(identifier: string) {
-    if (identifier in availableAPIs)
-      return {
-        available: true,
-        version: availableAPIs[identifier as keyof typeof availableAPIs],
-      }
-    return undefined
-  },
 }
 const traceMap = new Map<
   string,
@@ -51,20 +39,21 @@ self.addEventListener('message', ({ data, source }) => {
   else pair.resolve(returnValue)
   traceMap.delete(traceId)
 })
-for (const apiName in availableAPIs) {
-  Reflect.defineProperty(nxObj, apiName, {
-    value: function (arg: any) {
+
+const proxyedNxObj = new Proxy(nxObj, {
+  get(target, prop) {
+    if (prop in target) return target[prop as keyof typeof target]
+    if (typeof prop === 'symbol') return target[prop as never] // 不处理symbol属性
+    //尝试调用API。如果没有这个API，parent会回传错误
+    return (arg: any) => {
       return new Promise((resolve, reject) => {
         const traceId = newTraceId()
         traceMap.set(traceId, { resolve, reject })
-        postParent({ traceId, call: apiName, arg })
+        postParent({ traceId, call: prop, arg })
       })
-    },
-  })
-}
-
-//目前Proxy为noop
-const proxyedNxObj = new Proxy(nxObj, {})
+    }
+  },
+})
 Reflect.defineProperty(self, 'nx', { value: proxyedNxObj })
 
 export default proxyedNxObj as NxType

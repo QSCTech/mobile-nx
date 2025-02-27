@@ -3,9 +3,12 @@ import { ExtensionCapability } from './Extension'
 import { z } from 'zod'
 import { throwF } from '@/utils/functions'
 
+type FuncOnCapability<K extends keyof ExtensionWidgetCapability['exposedAPI']> =
+  ExtensionWidgetCapability['exposedAPI'][K]['f']
 export type ExtensionAPIs = {
-  ping(): 'pong'
-  setWidgetHeight(height: number): void
+  caniuse: FuncOnCapability<'caniuse'>
+  ping: FuncOnCapability<'ping'>
+  setWidgetHeight: FuncOnCapability<'setWidgetHeight'>
 }
 
 /**插件能力-小组件。允许插件添加一个通过iframe加载的小组件。 */
@@ -27,16 +30,28 @@ export class ExtensionWidgetCapability extends ExtensionCapability {
     .passthrough()
   /**向小组件暴露的API方法。如果f返回Promise，将在兑现后将(非Promise)兑现值回传给小组件；否则直接将返回值回传 */
   readonly exposedAPI = {
+    caniuse: {
+      version: '0.1.0',
+      f: (identifier: string) => {
+        const descriptor =
+          this.exposedAPI[identifier as keyof typeof this.exposedAPI]
+        if (!descriptor) return undefined
+        return { identifier, available: true, version: descriptor.version }
+      },
+      argSchema: z.string().min(1),
+    },
+    ping: {
+      version: '0.1.0',
+      f: () => 'pong',
+      argSchema: z.unknown(),
+    },
     setWidgetHeight: {
+      version: '0.1.0',
       f: this.setWidgetHeight.bind(this),
       argSchema: z
         .number()
         .min(0)
         .max(ExtensionWidgetCapability.maxWidgetHeight),
-    },
-    ping: {
-      f: () => 'pong',
-      argSchema: z.unknown(),
     },
   }
   /**更新小组件UI高度，单位为像素 */
@@ -61,8 +76,7 @@ export class ExtensionWidgetCapability extends ExtensionCapability {
       const { f, argSchema } =
         this.exposedAPI[call as keyof typeof this.exposedAPI]
       const parsedArg = argSchema.parse(arg)
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-      const result = f(parsedArg as any) as unknown
+      const result = f(parsedArg as never) as unknown
       const responseToWidget = (data: unknown) =>
         source.postMessage({ traceId, return: data }, '*')
       if (result instanceof Promise) result.then(responseToWidget, throwF)
