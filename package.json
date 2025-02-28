@@ -7,6 +7,7 @@
     "format": "prettier --write .",
     "dev": "vite",
     "build": "tsc && vite build && esbuild --target=esnext --format=esm --bundle --outdir=dist --minify extensionHelper.ts",
+    "build-web-deploy":"vite build --base=/nx",
     "lint": "eslint .",
     "dev-android": "ionic cap run android -l --external"
   },

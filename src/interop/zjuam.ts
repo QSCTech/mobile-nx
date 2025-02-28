@@ -2,6 +2,7 @@
 import * as bigintModArith from 'bigint-mod-arith'
 import { getRawUrl, nxFetch } from './fetch'
 import { requestCredential } from './credential'
+import { z } from 'zod'
 
 /**将字符串用utf-8编码，再将字节序列转为bigint，越靠前的字符处于越高位 */
 function encodeAsBigInt(s: string) {
@@ -51,6 +52,22 @@ function getEntryUrl(params: SupportedParams) {
  * 由于原生层会自动保存cookie，登录一旦完成，对应用的所有HTTP请求都有效。
  */
 export class ZjuamService {
+  public static readonly ctorSchema = (() => {
+    const paramsSchema = z.union([
+      z.object({ service: z.string() }),
+      z.object({
+        client_id: z.string(),
+        redirect_uri: z.string(),
+        response_type: z.literal('code'),
+      }),
+      z.object({ follow: z.string() }),
+    ])
+    return z.union([
+      z.tuple([paramsSchema]),
+      z.tuple([paramsSchema, z.number()]),
+      z.tuple([paramsSchema, z.number(), z.boolean()]),
+    ])
+  })()
   /**
    * 初始化一个服务，设置参数。调用此构造方法不会进行登录。
    *
