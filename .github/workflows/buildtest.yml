@@ -4,6 +4,7 @@ on:
     branches: [capacitor, main]
   push:
     branches: [capacitor, main]
+  workflow_dispatch:
 
 jobs:
   build:
