@@ -1,0 +1,14 @@
+*.html text eol=crlf diff=html
+*.css text eol=crlf diff=css
+*.js text eol=crlf
+*.ts text eol=crlf
+*.tsx text eol=crlf
+
+*.md text diff=markdown
+
+package.json text eol=lf
+package-lock.json text eol=lf
+.prettierrc text eol=crlf
+
+.vscode/*.json text eol=crlf
+.github/workflows/*.yml text eol=crlf
