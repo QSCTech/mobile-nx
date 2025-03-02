@@ -5,8 +5,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { decodeReturn } from '@/extension/ExtensionIO'
-import type { ExtensionAPIs } from '@/extension/ExtensionWidgetCapability'
+import { decodeReturn } from './src/extension/ExtensionIO'
+import type { ExtensionAPIs } from './src/extension/ExtensionWidgetCapability'
 
 const version = '0.1.0'
 export type ExtNxType = { version: typeof version } & ExtensionAPIs

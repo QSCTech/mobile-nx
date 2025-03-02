@@ -154,7 +154,12 @@ async function nxFetchBase(
   let result: Response
   if (typeof respData === 'string')
     result = new Response(respData, { headers: respHeaders, status })
-  else if (respData && Reflect.getPrototypeOf(respData) === Object.prototype)
+  else if (respData === null)
+    result = new Response(null, { headers: respHeaders, status })
+  else if (
+    typeof respData === 'object' &&
+    Reflect.getPrototypeOf(respData) === Object.prototype
+  )
     // json字面量
     result = Response.json(respData, { headers: respHeaders, status })
   else throw new TypeError('Unsupported response data type')
@@ -168,7 +173,8 @@ async function nxFetchBase(
   return result
 }
 const nxFetchExtend = {
-  request: CapacitorHttp.request.bind(CapacitorHttp),
+  // 目前不再暴露CapacitorHttp.request
+  // request: CapacitorHttp.request.bind(CapacitorHttp),
   get(url: string, init?: Omit<NxFetchInit, 'method' | 'body'>) {
     return this(url, init)
   },
@@ -243,4 +249,4 @@ if (import.meta.env?.DEV) {
   }
   Object.defineProperties(globalThis, exposedProperties)
   console.warn('DEV mode: properties exposed', exposedProperties)
-} else console.log('PROD mode: no properties exposed')
+}
