@@ -56,7 +56,7 @@ export class CourseSpider {
 
         const { xnm: respXnm, kbList } =
           (await response.json()) as RawCourseResp
-        for (const { kcb, dsz, djj, xqj, xxq, xkkh, skcd } of kbList) {
+        for (const { kcb, dsz, djj, xqj, xxq, xkkh: rawXkkh, skcd } of kbList) {
           const kcbItem = kcb.split('<br>')
           const name = kcbItem[0]
           const teacher = kcbItem[2]
@@ -75,6 +75,8 @@ export class CourseSpider {
               termId |= termIdMap[xxqChar as keyof typeof termIdMap]
             else throw new Error('学期匹配失败')
 
+          // 对实验课进行合并
+          const xkkh = rawXkkh.replace(/-(\d+)[A]$/, '-$1')
           cMap.pushValue(xkkh, {
             semester: {
               year: Number(respXnm.split('-')[0]),
