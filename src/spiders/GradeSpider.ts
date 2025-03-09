@@ -2,7 +2,7 @@ import type { Grade } from '@/models/Grade'
 
 import { requestCredential } from '@/interop/credential'
 import { ZjuamService } from '@/interop/zjuam'
-import { Term } from '@/models/shared'
+import { parseCourseSelectionId } from '@/utils/stringUtils'
 
 interface RawGrade {
   /** 成绩，如'93' */
@@ -37,9 +37,7 @@ export class GradeSpider {
     //TODO username转学号
     const response = await this.zjuamService.nxFetch.postUrlEncoded(
       `http://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=query&gnmkdm=N508301&su=${username}`,
-      {
-        body: params,
-      },
+      { body: params },
     )
     const data = (await response.json()) as { items: RawGrade[] }
     return data.items
@@ -47,15 +45,12 @@ export class GradeSpider {
 
   // 处理单个成绩数据
   private processGrade(rawGrade: RawGrade): Grade {
+    const { yearStart, term } = parseCourseSelectionId(rawGrade.xkkh)
     return {
       course: {
         semester: {
-          year: Number(rawGrade.xkkh.slice(1, 5)),
-          term:
-            //TODO 获得短学期课程实际学期
-            rawGrade.xkkh.slice(11, 12) === '1'
-              ? Term.AutumnWinter
-              : Term.SpringSummer,
+          year: yearStart,
+          term,
         },
         id: rawGrade.xkkh,
         name: rawGrade.kcmc,
