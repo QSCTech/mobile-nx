@@ -1,8 +1,7 @@
-import { DayOfWeek, Term } from '../models/shared'
+import { DayOfWeek, Term, WeekType } from '../models/shared'
 import { Course, ClassArrangement } from '../models/Course'
-import { WeekType } from '@/models/shared'
 import { ZjuamService } from '../interop/zjuam'
-import { requestCredential } from '@/interop/credential'
+import { requestCredential } from '../interop/credential'
 
 /**课程表中的课程信息，无学分、考试 */
 type CourseInSchedule = Omit<Course, 'credit' | 'exams'>

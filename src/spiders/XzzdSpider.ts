@@ -1,4 +1,4 @@
-import { Course } from '@/models/Course'
+import { Course } from '../models/Course'
 import { ZjuamService } from '../interop/zjuam'
 
 export interface XzzdTodo {
