@@ -1,6 +1,5 @@
 import type { Grade } from '@/models/Grade'
 
-import { requestCredential } from '@/interop/credential'
 import { ZjuamService } from '@/interop/zjuam'
 import { parseCourseSelectionId } from '@/utils/stringUtils'
 
@@ -24,19 +23,18 @@ export class GradeSpider {
   )
   public constructor() {}
 
-  // 接收成绩数据，使用其他数据源时使用相同接口
-  public async getGrade() {
+  /**一次性获取全部成绩信息。 */
+  public async getAllGrades() {
     const items = await this.fetchGrades()
     return items.map((item) => this.processGrade(item))
   }
 
   // 从浙江大学教务系统获取成绩数据
   private async fetchGrades() {
-    const { username } = await requestCredential(this.zjuamService)
     const params = new URLSearchParams({ 'queryModel.showCount': '5000' })
     //TODO username转学号
     const response = await this.zjuamService.nxFetch.postUrlEncoded(
-      `http://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=query&gnmkdm=N508301&su=${username}`,
+      `http://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=query&gnmkdm=N508301`,
       { body: params },
     )
     const data = (await response.json()) as { items: RawGrade[] }

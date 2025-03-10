@@ -10,7 +10,7 @@ export class ExamSpider {
   )
 
   /**一次性获取全部考试信息。 */
-  async getExams(): Promise<Pick<Course, 'id' | 'name' | 'exams'>[]> {
+  async getAllExams(): Promise<Pick<Course, 'id' | 'name' | 'exams'>[]> {
     const { items } = (await (
       await this.zjuamService.nxFetch.postUrlEncoded(
         'http://zdbk.zju.edu.cn/jwglxt/xskscx/kscx_cxXsgrksIndex.html?doType=query&gnmkdm=N509070',

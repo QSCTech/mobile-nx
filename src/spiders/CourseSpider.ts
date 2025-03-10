@@ -1,7 +1,6 @@
 import { DayOfWeek, Term, WeekType } from '../models/shared'
 import { Course, ClassArrangement } from '../models/Course'
 import { ZjuamService } from '../interop/zjuam'
-import { requestCredential } from '../interop/credential'
 
 /**课程表中的课程信息，无学分、考试 */
 type CourseInSchedule = Omit<Course, 'credit' | 'exams'>
@@ -32,7 +31,6 @@ export class CourseSpider {
     /** 结束学年（靠前的，如2024 - 2025请传2024）*/
     xnmEnd: number,
   ): Promise<CourseInSchedule[]> {
-    const { username: zjuId } = await requestCredential(this.zjuamService)
     const cMap = new Map<string, CourseInSchedule[]>()
     for (let curYear = xnmStart; curYear <= xnmEnd; curYear++) {
       const semesters = [
@@ -50,7 +48,7 @@ export class CourseSpider {
           xxfs: '0',
         })
         const response = await this.zjuamService.nxFetch.postUrlEncoded(
-          `http://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html?gnmkdm=N253508&su=${zjuId}`,
+          `http://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html?gnmkdm=N253508`,
           { body: params },
         )
 
