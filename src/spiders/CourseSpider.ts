@@ -1,6 +1,7 @@
 import { DayOfWeek, Term, WeekType } from '../models/shared'
 import { Course, ClassArrangement } from '../models/Course'
 import { ZjuamService } from '../interop/zjuam'
+import { parseCourseSelectionId } from '@/utils/stringUtils'
 
 /**课程表中的课程信息，无学分、考试 */
 type CourseInSchedule = Omit<Course, 'credit' | 'exams'>
@@ -14,87 +15,76 @@ type RawCourseResp = {
     xkkh: string
     skcd: string
   }[]
-  xnm: string
 }
 
 export class CourseSpider {
-  private zjuamService = new ZjuamService(
-    { service: 'http://zdbk.zju.edu.cn/jwglxt/xtgl/login_ssologin.html' },
-    60 * 30,
-  )
-  constructor() {}
+  private readonly zjuamService: ZjuamService
+  constructor(
+    zjuamService = new ZjuamService(
+      { service: 'http://zdbk.zju.edu.cn/jwglxt/xtgl/login_ssologin.html' },
+      60 * 5,
+    ),
+  ) {
+    this.zjuamService = zjuamService
+  }
 
-  /**查询指定年份区间的课表。未查短学期的课，未查实践课。 */
-  public async getCourses(
-    /** 起始学年（靠前的，如2024 - 2025请传2024） */
-    xnmStart: number,
-    /** 结束学年（靠前的，如2024 - 2025请传2024）*/
-    xnmEnd: number,
-  ): Promise<CourseInSchedule[]> {
+  /**一次性获取全部课程信息。未查短学期的课，未查实践课。 */
+  public async getAllCourses(): Promise<CourseInSchedule[]> {
     const cMap = new Map<string, CourseInSchedule[]>()
-    for (let curYear = xnmStart; curYear <= xnmEnd; curYear++) {
-      const semesters = [
-        { xqm: '1|秋', xqmmc: '秋' },
-        { xqm: '1|冬', xqmmc: '冬' },
-        { xqm: '2|春', xqmmc: '春' },
-        { xqm: '2|夏', xqmmc: '夏' },
-      ]
-      for (const { xqm, xqmmc } of semesters) {
-        const params = new URLSearchParams({
-          xnm: `${curYear}-${curYear + 1}`,
-          xqm,
-          xqmmc,
+    const response = await this.zjuamService.nxFetch.postUrlEncoded(
+      `http://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html?gnmkdm=N253508`,
+      {
+        body: new URLSearchParams({
           xxqf: '0',
-          xxfs: '0',
-        })
-        const response = await this.zjuamService.nxFetch.postUrlEncoded(
-          `http://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html?gnmkdm=N253508`,
-          { body: params },
-        )
+          xsfs: '0',
+          xnm: '',
+          xqm: '',
+          xqmmc: '',
+        }),
+      },
+    )
 
-        const { xnm: respXnm, kbList } =
-          (await response.json()) as RawCourseResp
-        for (const { kcb, dsz, djj, xqj, xxq, xkkh: rawXkkh, skcd } of kbList) {
-          const kcbItem = kcb.split('<br>')
-          const name = kcbItem[0]
-          const teacher = kcbItem[2]
-          const location = kcbItem[3].replace(/zwf.*/, '').trim()
+    const { kbList } = (await response.json()) as RawCourseResp
+    for (const { kcb, dsz, djj, xqj, xxq, xkkh: rawXkkh, skcd } of kbList) {
+      const kcbItem = kcb.split('<br>')
+      const name = kcbItem[0]
+      const teacher = kcbItem[2]
+      const location = kcbItem[3].replace(/zwf.*/, '').trim()
 
-          const termIdMap = {
-            春: Term.Spring,
-            夏: Term.Summer,
-            秋: Term.Autumn,
-            冬: Term.Winter,
-            短: Term.Short,
-          }
-          let termId = 0
-          for (const xxqChar of xxq)
-            if (xxqChar in termIdMap)
-              termId |= termIdMap[xxqChar as keyof typeof termIdMap]
-            else throw new Error('学期匹配失败')
-
-          // 对实验课进行合并
-          const xkkh = rawXkkh.replace(/-(\d+)[A]$/, '-$1')
-          cMap.pushValue(xkkh, {
-            semester: {
-              year: Number(respXnm.split('-')[0]),
-              term: termId,
-            },
-            id: xkkh,
-            name: name,
-            teacherName: teacher,
-            classes: [
-              {
-                weekType: dsz === '0' ? 'odd' : dsz === '1' ? 'even' : 'every',
-                dayOfWeek: xqj as DayOfWeek,
-                startSection: Number(djj),
-                sectionCount: Number(skcd),
-                location: location,
-              },
-            ],
-          })
-        }
+      const termIdMap = {
+        春: Term.Spring,
+        夏: Term.Summer,
+        秋: Term.Autumn,
+        冬: Term.Winter,
+        短: Term.Short,
       }
+      let termId = 0
+      for (const xxqChar of xxq)
+        if (xxqChar in termIdMap)
+          termId |= termIdMap[xxqChar as keyof typeof termIdMap]
+        else throw new Error('学期匹配失败')
+
+      // 对实验课进行合并
+      const xkkh = rawXkkh.replace(/-(\d+)[A]$/, '-$1')
+      const { yearStart } = parseCourseSelectionId(xkkh)
+      cMap.pushValue(xkkh, {
+        semester: {
+          year: yearStart,
+          term: termId,
+        },
+        id: xkkh,
+        name: name,
+        teacherName: teacher,
+        classes: [
+          {
+            weekType: dsz === '0' ? 'odd' : dsz === '1' ? 'even' : 'every',
+            dayOfWeek: xqj as DayOfWeek,
+            startSection: Number(djj),
+            sectionCount: Number(skcd),
+            location: location,
+          },
+        ],
+      })
     }
     return [...cMap.values()].map((courses) => ({
       ...courses[0], // 首项必定存在，课程名称、教师等均取自首项

@@ -17,12 +17,15 @@ interface RawGrade {
 }
 
 export class GradeSpider {
-  private zjuamService = new ZjuamService(
-    { service: 'http://zdbk.zju.edu.cn/jwglxt/xtgl/login_ssologin.html' },
-    60 * 30,
-  )
-  public constructor() {}
-
+  private readonly zjuamService: ZjuamService
+  constructor(
+    zjuamService = new ZjuamService(
+      { service: 'http://zdbk.zju.edu.cn/jwglxt/xtgl/login_ssologin.html' },
+      60 * 5,
+    ),
+  ) {
+    this.zjuamService = zjuamService
+  }
   /**一次性获取全部成绩信息。 */
   public async getAllGrades() {
     const items = await this.fetchGrades()
