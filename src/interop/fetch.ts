@@ -7,7 +7,8 @@ let cookieJar: import('tough-cookie').CookieJar | null = null
 if (isNode) {
   console.warn('检测到node环境，导入tough-cookie')
   cookieJar = new (await import('tough-cookie')).CookieJar()
-}
+} else if (import.meta.env?.DEV)
+  console.warn('vite开发环境下，由vite开发服务器代理跨域请求')
 
 /**将Headers或URLSearchParams转换为对象字面量。注意：同名header将被覆盖 */
 function toLiteral(from: Headers | URLSearchParams) {
@@ -106,8 +107,20 @@ async function nxFetchBase(
     if (r) return await r
     return resp
   } else if (appPlatform === 'web') {
-    //TODO 用本地开发服务器代理请求
-    return await globalThis.fetch(input, init)
+    if (import.meta.env?.DEV) {
+      const response = await globalThis.fetch(
+        `${location.origin}/__vite_dev_proxy__?url=${encodeURIComponent(input)}`,
+        init,
+      )
+
+      Reflect.defineProperty(response, 'url', {
+        configurable: true,
+        enumerable: true,
+        value: new URL(response.url).searchParams.get('url'),
+        writable: false,
+      })
+      return response
+    } else return await globalThis.fetch(input, init)
   }
 
   let b: unknown = body

@@ -1,4 +1,5 @@
-import '../utils'
+import '../utils' //加载扩展原型方法
+import './index' //平台相关初始化
 
 export const isNode = !import.meta.env
 if (isNode)
