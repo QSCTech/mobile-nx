@@ -1,5 +1,4 @@
-//TODO 优化依赖/逻辑
-import * as bigintModArith from 'bigint-mod-arith'
+import { modPow } from 'bigint-mod-arith'
 import { getRawUrl, nxFetch } from './fetch'
 import { requestCredential } from './credential'
 import { z } from 'zod'
@@ -123,100 +122,102 @@ export class ZjuamService {
 
   public static readonly loginUrlRegex = /https?:\/\/zjuam\.zju\.edu\.cn/
 
-  /**如果已经在登录流程中，则等待该流程结果而非重新登录，避免cookie冲突。
-   *
-   * 此机制仅在同一ZjuamService实例中有效。
-   */
+  //如果已经在登录流程中，则等待该流程结果而非重新登录，避免cookie冲突。
+  /**同一zjuamService内部登录请求，如发生并行，只尝试登录一次 */
   private curLogin?: Promise<string>
+  /**全局锁。如果出现并行登录，则等待 */
+  private static globalLogin?: Promise<unknown>
   /**立即重新登录。成功返回最终服务重定向结果url（跟随zjuam登录成功的302），失败异步抛出错误。
    *
    * 如果`preserveTicket`为true，则返回包含ticket的url。
    */
   public login(): Promise<string> {
-    if (this.curLogin) return this.curLogin
-    return (this.curLogin = (async () => {
-      const entryResp = await nxFetch.get(getEntryUrl(this.params), {
-        redirectChecker: (resp) => {
-          if (this.preserveTicket)
-            // 停在最后包含ticket的重定向前
-            return resp.headers.get('location')?.match(/[?&]ticket=/) === null
-          else return true
-        },
-      })
-      /**打开登录页面，zjuam重定向得到的最终地址 */
-      const postUrl = getRawUrl(entryResp.url)
-      if (
-        !postUrl.match(ZjuamService.loginUrlRegex) ||
-        postUrl.match(/[?&]ticket=/)
-      ) {
-        console.log('记住登录生效', this)
-        this.lastLoginTime = new Date()
-        return postUrl
-      }
+    if (this.curLogin) return this.curLogin //同一ZjuamService，同时只尝试一次登录
+    return (ZjuamService.globalLogin = this.curLogin =
+      (async () => {
+        await ZjuamService.globalLogin
+        const entryResp = await nxFetch.get(getEntryUrl(this.params), {
+          redirectChecker: (resp) => {
+            if (this.preserveTicket)
+              // 停在最后包含ticket的重定向前
+              return resp.headers.get('location')?.match(/[?&]ticket=/) === null
+            else return true
+          },
+        })
+        /**打开登录页面，zjuam重定向得到的最终地址 */
+        const postUrl = getRawUrl(entryResp.url)
+        if (
+          !postUrl.match(ZjuamService.loginUrlRegex) ||
+          postUrl.match(/[?&]ticket=/)
+        ) {
+          console.log('记住登录生效', this)
+          this.lastLoginTime = new Date()
+          return postUrl
+        }
 
-      const respText = await entryResp.text()
-      const execution = respText.match(
-        /<input type="hidden" name="execution" value="(?<execution>.+)"/,
-      )?.groups?.execution
-      if (!execution) throw new Error('获取execution失败')
+        const respText = await entryResp.text()
+        const execution = respText.match(
+          /<input type="hidden" name="execution" value="(?<execution>.+)"/,
+        )?.groups?.execution
+        if (!execution) throw new Error('获取execution失败')
 
-      // 获取用户名密码
-      const { username, password } = await requestCredential(this)
+        // 获取用户名密码
+        const { username, password } = await requestCredential(this)
 
-      // 获取公钥
-      const { exponent, modulus } = (await (
-        await nxFetch.get('https://zjuam.zju.edu.cn/cas/v2/getPubKey')
-      ).json()) as UpstreamPubKey
-      const exponentBigInt = BigInt('0x' + exponent)
-      const modulusBigInt = BigInt('0x' + modulus)
-      const rawPassword = encodeAsBigInt(password)
-      const encPassword = bigintModArith
-        .modPow(rawPassword, exponentBigInt, modulusBigInt)
-        .toString(16)
-        .padStart(128, '0')
+        // 获取公钥
+        const { exponent, modulus } = (await (
+          await nxFetch.get('https://zjuam.zju.edu.cn/cas/v2/getPubKey')
+        ).json()) as UpstreamPubKey
+        const exponentBigInt = BigInt('0x' + exponent)
+        const modulusBigInt = BigInt('0x' + modulus)
+        const rawPassword = encodeAsBigInt(password)
+        const encPassword = modPow(rawPassword, exponentBigInt, modulusBigInt)
+          .toString(16)
+          .padStart(128, '0')
 
-      const loginResp = await nxFetch.postUrlEncoded(postUrl, {
-        body: new URLSearchParams({
-          username,
-          password: encPassword,
-          _eventId: 'submit',
-          execution,
-          authcode: '',
-          rememberMe: 'false',
-        }),
-        preserveMethodInRedirects: false, // 登录后若重定向则不再次发送凭据
-        redirectChecker: (resp) => {
-          if (this.preserveTicket)
-            return Boolean(
-              resp.headers.get('location')?.match(ZjuamService.loginUrlRegex),
-            )
-          else return true
-        },
-      })
-      const loginUrl = getRawUrl(loginResp.url)
-      if (!loginUrl.match(ZjuamService.loginUrlRegex)) {
-        console.log('登录成功', this)
-        this.lastLoginTime = new Date()
-        return loginUrl
-      }
+        const loginResp = await nxFetch.postUrlEncoded(postUrl, {
+          body: new URLSearchParams({
+            username,
+            password: encPassword,
+            _eventId: 'submit',
+            execution,
+            authcode: '',
+            rememberMe: 'false',
+          }),
+          preserveMethodInRedirects: false, // 登录后若重定向则不再次发送凭据
+          redirectChecker: (resp) => {
+            if (this.preserveTicket)
+              return Boolean(
+                resp.headers.get('location')?.match(ZjuamService.loginUrlRegex),
+              )
+            else return true
+          },
+        })
+        const loginUrl = getRawUrl(loginResp.url)
+        if (!loginUrl.match(ZjuamService.loginUrlRegex)) {
+          console.log('登录成功', this)
+          this.lastLoginTime = new Date()
+          return loginUrl
+        }
 
-      const errorHtml = await loginResp.text()
-      let error = '未知错误'
-      const { allowDate } =
-        errorHtml.match(/allowLoginTime\s*=\s*'(?<allowDate>.+)'/)?.groups ?? {}
-      if (allowDate) {
-        const allowTimestamp = Date.parse(allowDate + '+0800').valueOf() //(上游)时区为UTC+8
-        const waitSeconds = Math.ceil((allowTimestamp - Date.now()) / 1000)
-        error = `失败次数太多，请在 ${waitSeconds}s 重试`
-      } else
-        error =
-          errorHtml.match(/<span id="msg">(?<errMsg>.*)<\/span>/)?.groups
-            ?.errMsg ?? error
-      console.error('登录失败', this, error, loginUrl)
-      throw new Error('登录失败: ' + error)
-    })().then((v) => {
-      this.curLogin = undefined
-      return v
-    }))
+        const errorHtml = await loginResp.text()
+        let error = '未知错误'
+        const { allowDate } =
+          errorHtml.match(/allowLoginTime\s*=\s*'(?<allowDate>.+)'/)?.groups ??
+          {}
+        if (allowDate) {
+          const allowTimestamp = Date.parse(allowDate + '+0800').valueOf() //(上游)时区为UTC+8
+          const waitSeconds = Math.ceil((allowTimestamp - Date.now()) / 1000)
+          error = `失败次数太多，请在 ${waitSeconds}s 重试`
+        } else
+          error =
+            errorHtml.match(/<span id="msg">(?<errMsg>.*)<\/span>/)?.groups
+              ?.errMsg ?? error
+        console.error('登录失败', this, error, loginUrl)
+        throw new Error('登录失败: ' + error)
+      })().then((v) => {
+        this.curLogin = undefined
+        return v
+      }))
   }
 }
