@@ -51,6 +51,7 @@ function getEntryUrl(params: SupportedParams) {
  * 由于原生层会自动保存cookie，登录一旦完成，对应用的所有HTTP请求都有效。
  */
 export class ZjuamService {
+  /**@internal */
   public static readonly ctorSchema = (() => {
     const paramsSchema = z.union([
       z.object({ service: z.string() }),

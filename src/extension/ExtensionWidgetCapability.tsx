@@ -28,13 +28,18 @@ export type ExtensionAPIs = {
 
 /**小组件插件的管理类。允许插件添加一个通过iframe加载的小组件。 */
 export class WidgetExtensionRuntime {
-  constructor(readonly extension: WidgetExtension) {}
+  /**@internal */
+  public constructor(
+    /**@internal */
+    readonly extension: WidgetExtension,
+  ) {}
 
   /**与此能力实例关联的iframe元素。仅该iframe发送的message会被处理 */
   #iframeEle: HTMLIFrameElement | null = null
   #borrowManager = new BorrowManager()
 
   static readonly maxWidgetHeight = 500
+  /**@internal */
   static readonly widgetMessageDataBaseSchema = z
     .object({
       traceId: z.string(),
