@@ -16,7 +16,8 @@ async function toBody(req: IncomingMessage): Promise<Buffer> {
 export default function devProxy(): Plugin {
   const cookieJar = new CookieJar()
   return {
-    name: 'dev-proxy',
+    name: 'vite-plugin-dev-proxy',
+    apply: 'serve',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         void (async () => {

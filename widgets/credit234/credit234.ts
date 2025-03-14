@@ -2,15 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import nx from '../../extHelper'
 
-// 避免vite热重载后widget高度归零
-self.addEventListener('message', ({ data }) => {
-  if (data.init === true) {
-    nx.setWidgetHeight(document.body.scrollHeight).catch((e) => {
-      throw e
-    })
-  }
-})
-
 const r = await nx.newZjuamService({
   service: 'http://sztz.zju.edu.cn/dekt/',
 })

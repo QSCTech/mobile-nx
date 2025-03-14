@@ -129,7 +129,7 @@ export class WidgetExtensionRuntime {
     iframeEle.height = '0'
     const messageHandler = this.onMessage.bind(this)
     window.addEventListener('message', messageHandler)
-    this.#iframeEle.contentWindow?.postMessage({ init: true }, '*')
+    this.#iframeEle.src = this.extension.widget.entryUrl
     return () => window.removeEventListener('message', messageHandler)
   }
 }
@@ -151,7 +151,6 @@ export function ExtensionWidget({ extension }: { extension: WidgetExtension }) {
       allow={['geolocation'].map((k) => `${k} 'none'`).join('; ')}
       referrerPolicy="origin"
       sandbox="allow-scripts allow-forms allow-same-origin"
-      src={extension.widget.entryUrl}
       ref={iframeRef}
     />
   )
