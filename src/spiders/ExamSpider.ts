@@ -1,18 +1,10 @@
 import { Course } from '@/models/Course'
-import { ZjuamService } from '@/interop/zjuam'
 import { parseZdbkDate } from '@/utils/stringUtils'
 import { Maybe } from '@/utils/type'
+import { sharedZjuamService } from './sharedZjuamService'
 
 export class ExamSpider {
-  private readonly zjuamService: ZjuamService
-  constructor(
-    zjuamService = new ZjuamService(
-      { service: 'http://zdbk.zju.edu.cn/jwglxt/xtgl/login_ssologin.html' },
-      60 * 5,
-    ),
-  ) {
-    this.zjuamService = zjuamService
-  }
+  private readonly zjuamService = sharedZjuamService
 
   /**一次性获取全部考试信息。 */
   async getAllExams(): Promise<Pick<Course, 'id' | 'name' | 'exams'>[]> {

@@ -1,7 +1,7 @@
 import type { Grade } from '@/models/Grade'
 
-import { ZjuamService } from '@/interop/zjuam'
 import { parseCourseSelectionId } from '@/utils/stringUtils'
+import { sharedZjuamService } from './sharedZjuamService'
 
 interface RawGrade {
   /** 成绩，如'93' */
@@ -17,31 +17,21 @@ interface RawGrade {
 }
 
 export class GradeSpider {
-  private readonly zjuamService: ZjuamService
-  constructor(
-    zjuamService = new ZjuamService(
-      { service: 'http://zdbk.zju.edu.cn/jwglxt/xtgl/login_ssologin.html' },
-      60 * 5,
-    ),
-  ) {
-    this.zjuamService = zjuamService
-  }
+  private readonly zjuamService = sharedZjuamService
+
   /**一次性获取全部成绩信息。 */
   public async getAllGrades() {
     const items = await this.fetchGrades()
     return items.map((item) => this.processGrade(item))
   }
 
-  // 从浙江大学教务系统获取成绩数据
   private async fetchGrades() {
-    const params = new URLSearchParams({ 'queryModel.showCount': '5000' })
-    //TODO username转学号
     const response = await this.zjuamService.nxFetch.postUrlEncoded(
       `http://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=query&gnmkdm=N508301`,
-      { body: params },
+      { body: new URLSearchParams({ 'queryModel.showCount': '5000' }) },
     )
-    const data = (await response.json()) as { items: RawGrade[] }
-    return data.items
+    const { items } = (await response.json()) as { items: RawGrade[] }
+    return items
   }
 
   // 处理单个成绩数据

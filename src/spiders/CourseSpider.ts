@@ -1,32 +1,31 @@
 import { DayOfWeek, Term, WeekType } from '../models/shared'
 import { Course, ClassArrangement } from '../models/Course'
-import { ZjuamService } from '../interop/zjuam'
 import { parseCourseSelectionId } from '@/utils/stringUtils'
+import { sharedZjuamService } from './sharedZjuamService'
 
 /**课程表中的课程信息，无学分、考试 */
 type CourseInSchedule = Omit<Course, 'credit' | 'exams'>
 type RawCourseResp = {
   kbList: {
-    kcb: string
-    dsz: string
-    djj: string
-    xqj: number
-    xxq: string
+    /**选课课号 */
     xkkh: string
+    /**例：'面向对象程序设计<br>春夏{第1-8周|1节/周}<br>教师名<br>上课地点zwf期末时间zwf' */
+    kcb: string
+    /**单双周表示，0 1 2（字符串）分别代表单周 双周 每周 */
+    dsz: string
+    /**第几节课开始 */
+    djj: string
+    /**上课长度，包括djj */
     skcd: string
+    /**星期几 */
+    xqj: number
+    /**学期区，春/夏/秋/冬/春夏/秋冬 */
+    xxq: string
   }[]
 }
 
 export class CourseSpider {
-  private readonly zjuamService: ZjuamService
-  constructor(
-    zjuamService = new ZjuamService(
-      { service: 'http://zdbk.zju.edu.cn/jwglxt/xtgl/login_ssologin.html' },
-      60 * 5,
-    ),
-  ) {
-    this.zjuamService = zjuamService
-  }
+  private readonly zjuamService = sharedZjuamService
 
   /**一次性获取全部课程信息。未查短学期的课，未查实践课。 */
   public async getAllCourses(): Promise<CourseInSchedule[]> {
