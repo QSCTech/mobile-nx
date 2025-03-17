@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { WidgetExtension } from './Extension'
 import { z } from 'zod'
-import { afterDone, PromiseAwaited } from '../utils/functions'
+import { afterDone, PromiseAwaited } from '../utils/func'
 import { BorrowedHandle, BorrowManager } from './BorrowManager'
 import { ZjuamService } from '../interop/zjuam'
 import { encodeReturn } from './ExtensionIO'

@@ -15,10 +15,15 @@ export type TodoType = 'homework' | 'exam' | 'questionnaire'
 
 export class XzzdSpider {
   zjuamService = new ZjuamService(
-    { follow: 'https://courses.zju.edu.cn/user/index' },
+    {
+      follow() {
+        //TODO ts似乎为可选参数；某些zhCN或许也可以不传
+        return `
+https://identity.zju.edu.cn/auth/realms/zju/protocol/cas/login?ui_locales=zh-CN&service=https%3A//courses.zju.edu.cn/user/index&locale=zh_CN&ts=${(Date.now() / 1000).toFixed(0)}`
+      },
+    },
     60 * 10,
   )
-  constructor() {}
 
   /**
    * 学在浙大日程获取。

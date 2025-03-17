@@ -2,6 +2,7 @@ import { modPow } from 'bigint-mod-arith'
 import { getRawUrl, nxFetch } from './fetch'
 import { requestCredential } from './credential'
 import { z } from 'zod'
+import { init } from '@/utils/func'
 
 /**将字符串用utf-8编码，再将字节序列转为bigint，越靠前的字符处于越高位 */
 function encodeAsBigInt(s: string) {
@@ -32,16 +33,16 @@ type Oauth2Params = {
  *
  * 如果最后未跳转到zjuam地址，将视为已登录成功。
  */
-type RedirectParams = { follow: string }
+type RedirectParams = { follow: string | (() => string) }
 type SupportedParams = CasParams | Oauth2Params | RedirectParams
 /**对于不同服务，编码参数，获得入口点 */
-function getEntryUrl(params: SupportedParams) {
+function getEntryUrl(params: SupportedParams): string {
   if ('service' in params)
     return `https://zjuam.zju.edu.cn/cas/login?${new URLSearchParams(params)}`
   else if ('client_id' in params)
     //oauth2会被重定向到https://zjuam.zju.edu.cn/cas/login?service=http%3A%2F%2Fzjuam.zju.edu.cn%2Fcas%2Foauth2.0%2FcallbackAuthorize
     return `https://zjuam.zju.edu.cn/cas/oauth2.0/authorize?${new URLSearchParams(params)}`
-  else if ('follow' in params) return params.follow
+  else if ('follow' in params) return init(params.follow)
 
   throw new Error('不支持的zjuam入口参数')
 }

@@ -21,3 +21,8 @@ export function afterDone<T>(
 export function constF<R>(arg: R): () => R {
   return () => arg
 }
+
+/**如果f是函数，则调用并返回其同步返回值；否则返回f。 */
+export function init<T>(f: T | (() => T)): T {
+  return typeof f === 'function' ? (f as () => T)() : f
+}
