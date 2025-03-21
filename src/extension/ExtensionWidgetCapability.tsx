@@ -155,6 +155,7 @@ export function ExtensionWidget({ extension }: { extension: WidgetExtension }) {
       scrolling="no"
       allow={['geolocation'].map((k) => `${k} 'none'`).join('; ')}
       referrerPolicy="origin"
+      rel="external nofollow"
       sandbox="allow-scripts allow-forms allow-same-origin"
       ref={iframeRef}
     />

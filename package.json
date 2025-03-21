@@ -6,7 +6,7 @@
   "scripts": {
     "format": "prettier --write .",
     "dev": "vite",
-    "build": "tsc && vite build && rollup extHelper.ts -p rollup-plugin-dts -o dist/extHelper.d.ts",
+    "build": "tsc && vite build",
     "build-web-deploy": "vite build --base=/nx",
     "lint": "eslint .",
     "dev-android": "ionic cap run android -l --external"
@@ -42,6 +42,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^15.15.0",
     "prettier": "^3.5.2",
+    "rollup": "^4.36.0",
     "rollup-plugin-dts": "^6.1.1",
     "tough-cookie": "^5.1.2",
     "tsx": "^4.19.3",
