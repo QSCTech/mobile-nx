@@ -1,19 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import nx from '../../extHelper'
 
 const r = await nx.newZjuamService({
   service: 'http://sztz.zju.edu.cn/dekt/',
 })
 
-const rs = await (
+const rs = (await (
   await r.nxFetch('http://sztz.zju.edu.cn/dekt/student/home/getMyInfo')
-).json()
-console.log(rs)
-const {
-  extend: {
-    myInfo: { dektJf: credit2, dsktJf: credit3, dsiktJf: credit4 },
-  },
-} = rs as {
+).json()) as {
   extend: {
     myInfo: {
       xm: string
@@ -27,5 +20,11 @@ const {
     }
   }
 }
+console.log(rs)
+const {
+  extend: {
+    myInfo: { dektJf: credit2, dsktJf: credit3, dsiktJf: credit4 },
+  },
+} = rs
 document.body.innerText = `二课分:${credit2}\n三课分:${credit3}\n四课分:${credit4}`
 await nx.setWidgetHeight(document.body.scrollHeight)

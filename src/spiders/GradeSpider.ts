@@ -27,7 +27,7 @@ export class GradeSpider {
 
   private async fetchGrades() {
     const response = await this.zjuamService.nxFetch.postUrlEncoded(
-      `http://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=query&gnmkdm=N508301`,
+      'http://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=query&gnmkdm=N508301',
       { body: new URLSearchParams({ 'queryModel.showCount': '5000' }) },
     )
     const { items } = (await response.json()) as { items: RawGrade[] }

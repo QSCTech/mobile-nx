@@ -6,6 +6,7 @@ import { sharedZjuamService } from './sharedZjuamService'
 /**课程表中的课程信息，无学分、考试 */
 type CourseInSchedule = Omit<Course, 'credit' | 'exams'>
 type RawCourseResp = {
+  /**显示在课表的课，与实践课相对 */
   kbList: {
     /**选课课号 */
     xkkh: string
@@ -31,7 +32,7 @@ export class CourseSpider {
   public async getAllCourses(): Promise<CourseInSchedule[]> {
     const cMap = new Map<string, CourseInSchedule[]>()
     const response = await this.zjuamService.nxFetch.postUrlEncoded(
-      `http://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html?gnmkdm=N253508`,
+      'http://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html?gnmkdm=N253508',
       {
         body: new URLSearchParams({
           xxqf: '0',
