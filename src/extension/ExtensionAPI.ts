@@ -7,6 +7,7 @@ const apiMetadataKey = Symbol('APIMetadata')
 type WithAPIMetadata = { [apiMetadataKey]: APIMetatdata }
 type APIMetatdata = { version: string; schema: z.ZodType }
 
+/**标记一个类的方法是暴露的插件API。调用此函数会返回一个stage3装饰器。 */
 function exposedAPI<V extends string>(version: V, schema: z.ZodType) {
   return function <
     This,
@@ -27,24 +28,30 @@ function exposedAPI<V extends string>(version: V, schema: z.ZodType) {
   }
 }
 
-export function isExposedAPI(value: unknown): value is WithAPIMetadata {
-  return typeof value === 'function' && apiMetadataKey in value
-}
-
 export class ExtensionAPI {
   constructor(protected runtime: ExtensionRuntime) {}
+  getExposedAPI(
+    key: string,
+  ):
+    | (((this: typeof this, ...args: unknown[]) => unknown) & WithAPIMetadata)
+    | null {
+    const value = this[key as keyof this]
+    if (typeof value === 'function' && apiMetadataKey in value)
+      return value as ((this: this, ...args: unknown[]) => unknown) &
+        WithAPIMetadata
+    return null
+  }
 
-  @exposedAPI('0.1.0', z.any())
+  @exposedAPI('0.1.0', z.unknown())
   ping() {
     return 'pong'
   }
 
   @exposedAPI('0.1.0', z.tuple([z.string().min(1)]))
   caniuse(identifier: string) {
-    const func = this[identifier as keyof this] as WithAPIMetadata | undefined,
-      metadata = func?.[apiMetadataKey]
-    if (!metadata) return undefined
-    const { version } = metadata
+    const func = this.getExposedAPI(identifier)
+    if (!func) return undefined
+    const { version } = func[apiMetadataKey]
     return { identifier, version, available: true }
   }
 

@@ -1,11 +1,11 @@
 import nx from '../../extHelper'
 
-const r = await nx.newZjuamService({
+const service = await nx.newZjuamService({
   service: 'http://sztz.zju.edu.cn/dekt/',
 })
 
-const rs = (await (
-  await r.nxFetch('http://sztz.zju.edu.cn/dekt/student/home/getMyInfo')
+const result = (await (
+  await service.nxFetch('http://sztz.zju.edu.cn/dekt/student/home/getMyInfo')
 ).json()) as {
   extend: {
     myInfo: {
@@ -20,11 +20,11 @@ const rs = (await (
     }
   }
 }
-console.log(rs)
+console.log(result)
 const {
   extend: {
     myInfo: { dektJf: credit2, dsktJf: credit3, dsiktJf: credit4 },
   },
-} = rs
+} = result
 document.body.innerText = `二课分:${credit2}\n三课分:${credit3}\n四课分:${credit4}`
 await nx.setWidgetHeight(document.body.scrollHeight)

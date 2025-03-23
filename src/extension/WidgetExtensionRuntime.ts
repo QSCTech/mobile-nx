@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { afterDone, applyOn, PromiseAwaited } from '../utils/func'
 import { BorrowedHandle } from './BorrowManager'
 import { encodeReturn, ExtensionRuntime } from './ExtensionRuntime'
-import { isExposedAPI, WidgetExtensionAPI } from './ExtensionAPI'
+import { WidgetExtensionAPI } from './ExtensionAPI'
 
 type ResolveHandle<H> = H extends BorrowedHandle<infer O> ? O : H
 type WidgetExtensionRuntimeExposedAPIs = WidgetExtensionRuntime['exposedAPIs']
@@ -45,13 +45,9 @@ export class WidgetExtensionRuntime extends ExtensionRuntime {
       const { call, args } =
         WidgetExtensionRuntime.widgetMessageDataBaseSchema.parse(data)
 
-      const f = this.exposedAPIs[call as keyof typeof this.exposedAPIs]
-      if (!isExposedAPI(f)) throw new Error(`No exposed API named ${call}`)
-      const result = applyOn(
-        f as (this: typeof this.exposedAPIs, ...args: unknown[]) => unknown,
-        this.exposedAPIs,
-        args,
-      )
+      const f = this.exposedAPIs.getExposedAPI(call)
+      if (!f) throw new Error(`No exposed API named ${call}`)
+      const result = applyOn(f, this.exposedAPIs, args)
 
       afterDone(result, async (data: unknown) =>
         source.postMessage({ traceId, return: await encodeReturn(data) }, '*'),
