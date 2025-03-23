@@ -6,7 +6,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
+import { applyOn } from '@/utils/func'
+
 export class BorrowManager {
   private readonly borrowedObjs = new Map<number, BorrowedHandle<unknown>>()
   private curId = 0
@@ -26,7 +28,7 @@ export class BorrowManager {
       throw new Error(`No borrowed object with id ${id}`)
     const obj = this.borrowedObjs.get(id)?.borrowedObj
     const target = prop === null ? obj : (obj as any)[prop]
-    return alert.apply.call(target, thisArg ?? obj, args)
+    return applyOn(target, thisArg ?? obj, args) as unknown
   }
 }
 

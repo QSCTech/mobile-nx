@@ -15,7 +15,12 @@ export default defineConfig({
     rollupOptions: { external: ['dotenv'] },
   },
   plugins: [
-    react(),
+    react({
+      useAtYourOwnRisk_mutateSwcOptions(options) {
+        options.jsc!.parser!.decorators = true
+        options.jsc!.transform!.decoratorVersion = '2022-03'
+      },
+    }),
     devProxy(), // 开发时跨源代理
     buildWidgets(), // 构建extHelper.{js,.d.ts}以及内置小组件
   ],

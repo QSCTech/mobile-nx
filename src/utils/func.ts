@@ -26,3 +26,19 @@ export function constF<R>(arg: R): () => R {
 export function init<T>(f: T | (() => T)): T {
   return typeof f === 'function' ? (f as () => T)() : f
 }
+
+/**尝试用thisArg和args调用函数f。此函数不会调用f.apply，以确保只触发调用行为。 */
+export function applyOn<
+  This = unknown,
+  A extends unknown[] = unknown[],
+  F extends (this: This, ...args: A) => unknown = (
+    this: This,
+    ...args: A
+  ) => unknown,
+>(f: F, thisArg: This, args: A): ReturnType<F> {
+  return Function.apply.call(
+    f as (this: unknown, ...args: A) => unknown,
+    thisArg,
+    args,
+  ) as ReturnType<F>
+}

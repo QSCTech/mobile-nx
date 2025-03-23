@@ -5,11 +5,40 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { decodeReturn } from './src/extension/ExtensionIO'
-import type { ExtensionAPIs } from './src/extension/ExtensionWidgetCapability'
+import type { WidgetExtensionExposedAPIs } from '@/extension/WidgetExtensionRuntime'
+import type { PackagedResponse } from '@/extension/ExtensionRuntime'
 
-const version = '0.1.0'
-export type ExtNxType = { version: typeof version } & ExtensionAPIs
+function decodeReturn(vToDecode: unknown, extNx: ExtNxType) {
+  if (typeof vToDecode !== 'object' || vToDecode === null) return vToDecode
+  if ('$borrowedId' in vToDecode) {
+    const borrowHandle = vToDecode['$borrowedId'] as number
+    const rawHandle = { __borrowedHandleId: borrowHandle, then: undefined }
+    const handle = new Proxy(rawHandle, {
+      get(target, prop) {
+        if (prop in target || typeof prop === 'symbol')
+          return target[prop as keyof typeof target]
+        return (...args: unknown[]) =>
+          extNx.applyOnHandle(borrowHandle, prop, args)
+      },
+    })
+    return handle
+  }
+  if ('$response' in vToDecode) {
+    const packaged = vToDecode['$response'] as PackagedResponse
+    const resp = new Response(packaged.body, {
+      headers: packaged.headers,
+      status: packaged.status,
+    })
+    Object.defineProperty(resp, 'url', { value: packaged.url })
+    return resp
+  }
+
+  return vToDecode
+}
+
+const helperVersion = '0.1.0'
+const nxObj = { helperVersion, then: undefined } as const
+export type ExtNxType = typeof nxObj & WidgetExtensionExposedAPIs
 function postParent(data: any) {
   return parent.postMessage(data, '*')
 }
@@ -17,7 +46,6 @@ let traceId = 0
 function newTraceId() {
   return String(++traceId)
 }
-const nxObj = { version }
 const traceMap = new Map<
   string,
   { resolve(data: any): void; reject(reason: any): void }
