@@ -1,17 +1,18 @@
-import { Course } from '../models/Course'
-import { ZjuamService } from '../interop/zjuam'
+import { ZjuamService } from '../services/ZjuamService'
 
 export interface XzzdTodo {
   /**选课号 */
-  courseCode: Course['id']
+  courseCode: string
   /**学在浙大系统内部数字id，目前无用 */
   courseId: number
+  /**学在浙大显示的课程名称 */
+  courseName: string
   endAt: Date
   /**todo标题，不含课程名，如'第一讲作业' */
   title: string
-  type: TodoType
+  type: XzzdTodoType
 }
-export type TodoType = 'homework' | 'exam' | 'questionnaire'
+export type XzzdTodoType = 'homework' | 'exam' | 'questionnaire'
 
 export class XzzdSpider {
   zjuamService = new ZjuamService(
@@ -45,15 +46,16 @@ https://identity.zju.edu.cn/auth/realms/zju/protocol/cas/login?ui_locales=zh-CN&
         is_student: boolean
         prerequisites: string[]
         title: string
-        type: TodoType
+        type: XzzdTodoType
       }[]
     }
     return todo_list.map((v) => ({
       courseCode: v.course_code,
       courseId: v.course_id,
+      courseName: v.course_name,
       endAt: new Date(v.end_time),
       title: v.title,
       type: v.type,
-    })) as XzzdTodo[]
+    }))
   }
 }

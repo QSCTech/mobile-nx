@@ -1,13 +1,15 @@
-import { Course } from '@/models/Course'
-import { parseZdbkDate } from '@/utils/stringUtils'
+import { parseZdbkDate, toSemester } from '@/utils/stringUtils'
 import { Maybe } from '@/utils/type'
 import { sharedZjuamService } from './sharedZjuamService'
+import { CourseBase } from '@/models/CourseBase'
+import { CourseExamInfo, ExamArrangement } from '@/models/CourseExamInfo'
 
+type CourseWithExamInfo = CourseBase & CourseExamInfo
 export class ExamSpider {
   private readonly zjuamService = sharedZjuamService
 
   /**一次性获取全部考试信息。 */
-  async getAllExams(): Promise<Pick<Course, 'id' | 'name' | 'exams'>[]> {
+  async getAllExams(): Promise<CourseWithExamInfo[]> {
     const { items } = (await (
       await this.zjuamService.nxFetch.postUrlEncoded(
         'http://zdbk.zju.edu.cn/jwglxt/xskscx/kscx_cxXsgrksIndex.html?doType=query&gnmkdm=N509070',
@@ -46,11 +48,13 @@ export class ExamSpider {
     }
 
     return items.map((item) => {
+      const selectionId = item.xkkh
       const course = {
-        id: item.xkkh,
+        semester: toSemester(selectionId),
+        id: selectionId,
         name: item.kcmc,
-        exams: [],
-      } as Pick<Course, 'id' | 'name' | 'exams'>
+        exams: [] as ExamArrangement[],
+      }
       if ('qzkssj' in item)
         course.exams.push({
           type: 'midterm',

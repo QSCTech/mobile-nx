@@ -1,6 +1,6 @@
 /**处理某些固定格式的字符串。 */
 
-import { Term } from '@/models/shared'
+import { Semester, Term } from '@/models/shared'
 
 export type CourseSelectionIdFields = {
   yearStart: number
@@ -27,6 +27,12 @@ export function parseCourseSelectionId(from: string): CourseSelectionIdFields {
     teacherId,
     subId,
   }
+}
+
+/**解析选课号并返回Semester。从选课号解析的学期只有1/2两种，故只能为秋冬/春夏 */
+export function toSemester(courseSelectionId: string): Semester {
+  const { yearStart, term } = parseCourseSelectionId(courseSelectionId)
+  return { year: yearStart, term }
 }
 
 /**解析部分日期，如2025年01月04日(14:00-16:00) */

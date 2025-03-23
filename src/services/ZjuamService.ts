@@ -1,6 +1,6 @@
 import { modPow } from 'bigint-mod-arith'
-import { getRawUrl, nxFetch } from './fetch'
-import { requestCredential } from './credential'
+import { getRawUrl, nxFetch } from '../interop/fetch'
+import { requestCredential } from '../interop/credential'
 import { z } from 'zod'
 import { init } from '@/utils/func'
 

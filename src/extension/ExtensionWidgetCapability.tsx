@@ -7,7 +7,7 @@ import { WidgetExtension } from './Extension'
 import { z } from 'zod'
 import { afterDone, PromiseAwaited } from '../utils/func'
 import { BorrowedHandle, BorrowManager } from './BorrowManager'
-import { ZjuamService } from '../interop/zjuam'
+import { ZjuamService } from '../services/ZjuamService'
 import { encodeReturn } from './ExtensionIO'
 
 type ResolveHandle<H> = H extends BorrowedHandle<infer O> ? O : H

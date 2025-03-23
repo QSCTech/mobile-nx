@@ -1,6 +1,7 @@
-import type { Grade } from '@/models/Grade'
+import type { CourseBase } from '@/models/CourseBase'
+import type { CourseGradeInfo } from '@/models/CourseGradeInfo'
 
-import { parseCourseSelectionId } from '@/utils/stringUtils'
+import { toSemester } from '@/utils/stringUtils'
 import { sharedZjuamService } from './sharedZjuamService'
 
 interface RawGrade {
@@ -15,6 +16,8 @@ interface RawGrade {
   /** 选课号，如'(2023-2024-2)-031E0011-0017170-2' */
   xkkh: string
 }
+
+type CourseWithGradeInfo = CourseBase & CourseGradeInfo
 
 export class GradeSpider {
   private readonly zjuamService = sharedZjuamService
@@ -35,18 +38,12 @@ export class GradeSpider {
   }
 
   // 处理单个成绩数据
-  private processGrade(rawGrade: RawGrade): Grade {
-    const { yearStart, term } = parseCourseSelectionId(rawGrade.xkkh)
+  private processGrade(rawGrade: RawGrade): CourseWithGradeInfo {
     return {
-      course: {
-        semester: {
-          year: yearStart,
-          term,
-        },
-        id: rawGrade.xkkh,
-        name: rawGrade.kcmc,
-        credit: Number(rawGrade.xf),
-      },
+      semester: toSemester(rawGrade.xkkh),
+      id: rawGrade.xkkh,
+      name: rawGrade.kcmc,
+      credit: Number(rawGrade.xf),
       rawScore: rawGrade.cj,
       rawGradePoint: rawGrade.jd,
       isAborted: rawGrade.cj === '弃修',

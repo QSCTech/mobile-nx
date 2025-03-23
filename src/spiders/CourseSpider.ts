@@ -1,10 +1,11 @@
 import { DayOfWeek, Term, WeekType } from '../models/shared'
-import { Course, ClassArrangement } from '../models/Course'
+import { CourseBase } from '../models/CourseBase'
+import { ClassArrangement, CourseClassInfo } from '@/models/CourseClassInfo'
 import { parseCourseSelectionId } from '@/utils/stringUtils'
 import { sharedZjuamService } from './sharedZjuamService'
 
-/**课程表中的课程信息，无学分、考试 */
-type CourseInSchedule = Omit<Course, 'credit' | 'exams'>
+/**课程表中的课程信息 */
+type CourseWithClassInfo = CourseBase & CourseClassInfo
 type RawCourseResp = {
   /**显示在课表的课，与实践课相对 */
   kbList: {
@@ -29,8 +30,8 @@ export class CourseSpider {
   private readonly zjuamService = sharedZjuamService
 
   /**一次性获取全部课程信息。未查短学期的课，未查实践课。 */
-  public async getAllCourses(): Promise<CourseInSchedule[]> {
-    const cMap = new Map<string, CourseInSchedule[]>()
+  public async getAllCourses(): Promise<CourseWithClassInfo[]> {
+    const cMap = new Map<string, CourseWithClassInfo[]>()
     const response = await this.zjuamService.nxFetch.postUrlEncoded(
       'http://zdbk.zju.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html?gnmkdm=N253508',
       {
@@ -131,7 +132,7 @@ export class CourseSpider {
                 sectionCount: secCount,
               })
             }
-            while (secFlags != 0) {
+            while (secFlags !== 0) {
               const curSecValid = Boolean(secFlags & 0b1)
               if (curSecValid) {
                 //当前sec有课
@@ -145,7 +146,7 @@ export class CourseSpider {
               secFlags >>= 1
               curSec++
             }
-            if (startSec != 0) finishCurSection()
+            if (startSec !== 0) finishCurSection()
             return sections
           }),
         ),
