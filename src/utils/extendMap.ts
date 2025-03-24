@@ -1,9 +1,11 @@
-type ElementType<A> = A extends (infer E)[] ? E : never
-
 interface Map<K, V> {
   /**如果指定的键存在，向对应的值push一个元素；否则新建一个仅有该元素的数组，并插入Map。 */
-  pushValue(key: K, element: ElementType<V>): void
-  /**如果指定的键存在，则获取该值，并尝试调用onExists；否则，调用valueInit，插入新的值并返回该新值。 */
+  pushValue: V extends (infer E)[] ? (key: K, element: E) => void : never
+  /**如果指定的键不存在，调用valueInit，插入新的值；
+   * 否则，尝试用已存在的值调用onExists。
+   *
+   * 返回插入的新值或已存在的值。
+   */
   ensure(key: K, valueInit: () => V, onExists?: (v: V) => void): V
 }
 
