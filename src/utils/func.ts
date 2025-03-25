@@ -27,7 +27,7 @@ export function init<T>(f: T | (() => T)): T {
   return typeof f === 'function' ? (f as () => T)() : f
 }
 
-/**尝试用thisArg和args调用函数f。此函数不会调用f.apply，以确保只触发调用行为。 */
+/**尝试用thisArg和args调用函数f。此函数不使用f.apply，以确保只触发调用行为。 */
 export function applyOn<
   This = unknown,
   A extends unknown[] = unknown[],

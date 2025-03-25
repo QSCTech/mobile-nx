@@ -32,7 +32,7 @@ interface NxFetchInit {
    *
    * 如果不提供此参数则默认跟随。重定向次数判定优先于此参数。
    *
-   * 仅在capacitor/node上支持。
+   * 仅在capacitor环境上(android/ios)支持。
    */
   redirectChecker?: (resp: Response) => boolean
 }
@@ -41,7 +41,7 @@ async function nxFetchBase(
   init?: NxFetchInit,
   /**剩余允许的重定向次数。0表示不允许重定向。
    *
-   * **此参数仅在capacitor/node上支持**，若超过重定向次数返回最后一次响应，不报错。
+   * **仅在capacitor环境上(android/ios)支持。** 若超过重定向次数返回最后一次响应，不报错。
    */
   redirectLeft = 10,
 ): Promise<Response> {

@@ -2,6 +2,8 @@ import { z } from 'zod'
 import { WidgetExtensionRuntime } from './WidgetExtensionRuntime'
 import { ZjuamService } from '../services/ZjuamService'
 import { ExtensionRuntime } from './ExtensionRuntime'
+import { PromiseAwaited } from '@/utils/func'
+import { ResolveHandle } from './BorrowManager'
 
 const apiMetadataKey = Symbol('APIMetadata')
 type WithAPIMetadata = { [apiMetadataKey]: APIMetatdata }
@@ -27,9 +29,18 @@ function exposedAPI<V extends string>(version: V, schema: z.ZodType) {
     })
   }
 }
+export type ToExposedAPIs<T> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [k in keyof T]: T[k] extends (...args: any) => any
+    ? (
+        ...args: Parameters<T[k]>
+      ) => Promise<ResolveHandle<PromiseAwaited<ReturnType<T[k]>>>>
+    : never
+}
 
 export class ExtensionAPI {
   constructor(protected runtime: ExtensionRuntime) {}
+  /**@internal */
   getExposedAPI(
     key: string,
   ):
@@ -42,9 +53,10 @@ export class ExtensionAPI {
     return null
   }
 
+  /**异步返回'pong' */
   @exposedAPI('0.1.0', z.unknown())
   ping() {
-    return 'pong'
+    return 'pong' as const
   }
 
   @exposedAPI('0.1.0', z.tuple([z.string().min(1)]))

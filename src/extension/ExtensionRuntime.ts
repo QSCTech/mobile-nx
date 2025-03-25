@@ -28,5 +28,6 @@ export async function encodeReturn(vToEncode: unknown) {
 export class ExtensionRuntime {
   public constructor(public readonly extension: Extension) {}
 
+  /**@internal */
   public borrowManager = new BorrowManager()
 }

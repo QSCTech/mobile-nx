@@ -1,21 +1,12 @@
 import { WidgetExtension } from './Extension'
 import { z } from 'zod'
-import { afterDone, applyOn, PromiseAwaited } from '../utils/func'
-import { BorrowedHandle } from './BorrowManager'
+import { afterDone, applyOn } from '../utils/func'
 import { encodeReturn, ExtensionRuntime } from './ExtensionRuntime'
-import { WidgetExtensionAPI } from './ExtensionAPI'
+import { ToExposedAPIs, WidgetExtensionAPI } from './ExtensionAPI'
 
-type ResolveHandle<H> = H extends BorrowedHandle<infer O> ? O : H
-type WidgetExtensionRuntimeExposedAPIs = WidgetExtensionRuntime['exposedAPIs']
-export type WidgetExtensionExposedAPIs = {
-  [k in keyof WidgetExtensionRuntimeExposedAPIs]: (
-    ...args: Parameters<WidgetExtensionRuntimeExposedAPIs[k]>
-  ) => Promise<
-    ResolveHandle<
-      PromiseAwaited<ReturnType<WidgetExtensionRuntimeExposedAPIs[k]>>
-    >
-  >
-}
+export type WidgetExtensionExposedAPIs = ToExposedAPIs<
+  WidgetExtensionRuntime['exposedAPIs']
+>
 
 /**小组件插件的运行时管理类，负责管理跨文档通信。 */
 export class WidgetExtensionRuntime extends ExtensionRuntime {

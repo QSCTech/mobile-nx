@@ -2,8 +2,8 @@
 node_modules/
 
 # build output
-dist/
 .tsbuildinfo
+dist/
 ship/
 
 # native folders

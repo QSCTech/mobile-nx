@@ -32,6 +32,7 @@ export class BorrowManager {
   }
 }
 
+export type ResolveHandle<H> = H extends BorrowedHandle<infer O> ? O : H
 export class BorrowedHandle<O> {
   public constructor(
     public readonly id: number,
