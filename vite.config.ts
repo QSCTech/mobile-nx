@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
-import react from '@vitejs/plugin-react-swc'
-import devProxy from './vite.devProxy'
-import buildWidgets from './vite.buildWidgets'
+import reactSwc from '@vitejs/plugin-react-swc'
+import devProxy from './vitePlugin/vite-plugin-dev-proxy'
+import buildWidgets from './vitePlugin/vite-plugin-build-widgets'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -15,7 +15,7 @@ export default defineConfig({
     rollupOptions: { external: ['dotenv'] },
   },
   plugins: [
-    react({
+    reactSwc({
       useAtYourOwnRisk_mutateSwcOptions(options) {
         options.jsc!.parser!.decorators = true
         options.jsc!.transform!.decoratorVersion = '2022-03'

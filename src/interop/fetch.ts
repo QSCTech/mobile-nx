@@ -110,7 +110,7 @@ async function nxFetchBase(
     if (import.meta.env?.DEV) {
       const response = await globalThis.fetch(
         `${location.origin}/__vite_dev_proxy__?url=${encodeURIComponent(input)}`,
-        init,
+        { ...init, cache: 'no-store' },
       )
 
       Reflect.defineProperty(response, 'url', {
@@ -236,15 +236,6 @@ export const nxFetch: typeof nxFetchBase & typeof nxFetchExtend = Object.assign(
   nxFetchBase,
   nxFetchExtend,
 )
-
-/**TODO 此函数或将弃用 */
-export function getRawUrl(interceptedUrl: string) {
-  //解析http://192.168.0.100:8100/_capacitor_http_interceptor_?u=https%3A%2F%2Fzjuam.zju.edu.cn%2Fcas%2Flogin%3Fservice%3Dhttp%253A%252F%252Fzdbk.zju.edu.cn%252Fjwglxt%252Fxtgl%252Flogin_ssologin.html
-  const url = new URL(interceptedUrl)
-  if (url.pathname === '/_capacitor_http_interceptor_')
-    return url.searchParams.get('u')!
-  return interceptedUrl
-}
 
 if (import.meta.env?.DEV) {
   // vite开发环境下，把nxFetch等暴露到全局对象上以便调试

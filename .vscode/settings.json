@@ -9,5 +9,5 @@
   },
   "[ignore][properties][shellscript][markdown]": {
     "files.eol": "\n"
-  },
+  }
 }

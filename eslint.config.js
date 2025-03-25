@@ -6,7 +6,10 @@ import pluginReactHooks from 'eslint-plugin-react-hooks'
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  { name: 'globalIgnore', ignores: ['dist/', 'android/', 'eslint.config.js'] },
+  {
+    name: 'globalIgnore',
+    ignores: ['dist/', 'ship', 'android/', 'eslint.config.js'],
+  },
   { name: 'pluginJs.configs.recommended', ...pluginJs.configs.recommended },
   ...tseslint.configs.recommendedTypeChecked,
   {

@@ -13,6 +13,7 @@ node_modules/
 # build files
 dist/
 .tsbuildinfo
+ship/
 
 # keystore files
 *.jks

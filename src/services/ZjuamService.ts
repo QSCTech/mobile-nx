@@ -1,5 +1,5 @@
 import { modPow } from 'bigint-mod-arith'
-import { getRawUrl, nxFetch } from '../interop/fetch'
+import { nxFetch } from '../interop/fetch'
 import { requestCredential } from '../interop/credential'
 import { z } from 'zod'
 import { init } from '@/utils/func'
@@ -147,7 +147,7 @@ export class ZjuamService {
           },
         })
         /**打开登录页面，zjuam重定向得到的最终地址 */
-        const postUrl = getRawUrl(entryResp.url)
+        const postUrl = entryResp.url
         if (
           !postUrl.match(ZjuamService.loginUrlRegex) ||
           postUrl.match(/[?&]ticket=/)
@@ -195,7 +195,7 @@ export class ZjuamService {
             else return true
           },
         })
-        const loginUrl = getRawUrl(loginResp.url)
+        const loginUrl = loginResp.url
         if (!loginUrl.match(ZjuamService.loginUrlRegex)) {
           console.log('登录成功', this)
           this.lastLoginTime = new Date()

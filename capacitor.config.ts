@@ -6,6 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   plugins: {
     CapacitorHttp: { enabled: false }, //显式不替换原生fetch
+    CapacitorUpdater: { autoUpdate: false },
   },
 }
 

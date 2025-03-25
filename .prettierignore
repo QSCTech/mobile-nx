@@ -1,9 +1,10 @@
 # dependencies
-node_modules
+node_modules/
 
 # build output
-dist
+dist/
 .tsbuildinfo
+ship/
 
 # native folders
 android

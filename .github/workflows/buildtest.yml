@@ -1,9 +1,9 @@
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [capacitor, main]
+    branches: [main]
   push:
-    branches: [capacitor, main]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -24,3 +24,4 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+      - run: npm run build-bundle

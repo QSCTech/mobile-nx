@@ -6,7 +6,7 @@ import { rollup } from 'rollup'
 import rollupPluginDts from 'rollup-plugin-dts'
 import rollupPluginAlias from '@rollup/plugin-alias'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const projRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 /**Vite Plugin，构建extHelper(包括dts)和内置widgets */
 export default function buildWidgets(): Plugin {
@@ -17,10 +17,10 @@ export default function buildWidgets(): Plugin {
       resolveAlias = config?.resolve?.alias
       const extHelperKey = '__extHelper'
       const rollupInput: Record<string, string> = {
-        main: resolve(__dirname, 'index.html'),
-        [extHelperKey]: resolve(__dirname, 'extHelper.ts'),
+        main: resolve(projRoot, 'index.html'),
+        [extHelperKey]: resolve(projRoot, 'extHelper.ts'),
       }
-      readdirSync(resolve(__dirname, 'widgets'), {
+      readdirSync(resolve(projRoot, 'widgets'), {
         encoding: 'utf-8',
         recursive: false,
         withFileTypes: true,
@@ -29,7 +29,7 @@ export default function buildWidgets(): Plugin {
         .forEach(
           ({ name: dirName }) =>
             (rollupInput[`${dirName}`] = resolve(
-              __dirname,
+              projRoot,
               'widgets',
               dirName,
               'index.html',
@@ -61,7 +61,7 @@ export default function buildWidgets(): Plugin {
             rollupPluginDts(),
           ],
         })
-      ).write({ dir: 'dist' })
+      ).write({ dir: 'ship' })
     },
   }
 }
