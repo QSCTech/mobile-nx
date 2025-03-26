@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   resolve: { alias: { '@': resolve(__dirname, 'src') } },
   build: {
-    target: 'esnext',
+    target: 'es2022',
     rollupOptions: { external: ['dotenv'] },
   },
   plugins: [

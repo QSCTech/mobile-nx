@@ -6,6 +6,8 @@ import { SemVer, Range } from 'semver'
 import { version } from '@/../package.json'
 
 void CapacitorUpdater.notifyAppReady()
+;(self as unknown as Record<string, unknown>).CapacitorUpdater =
+  CapacitorUpdater
 const curVersion = new SemVer(version),
   curAppVersion = new SemVer(appVersion)
 
