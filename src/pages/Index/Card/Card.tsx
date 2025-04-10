@@ -7,7 +7,7 @@ export function IconImg({ bgColor, src }: { bgColor: string; src: string }) {
 
 /** Card是首页的通用组件 */
 export default function Card(props: {
-  logo: ReactNode
+  icon: ReactNode
   title: string
   linkTitle?: string
   linkHref?: string
@@ -18,7 +18,7 @@ export default function Card(props: {
     <div className='card'>
       <div className='head'>
         <div className='desc'>
-          {props.logo}
+          {props.icon}
           {props.title}
         </div>
         <a
@@ -33,4 +33,3 @@ export default function Card(props: {
     </div>
   )
 }
-/**这里的className={name}可以让定制组件内的class不会相互冲突，都包含在这个特定的name下即可 */

@@ -13,9 +13,6 @@
   --today-none-color: #fdab76;
   --today-list-none-color: grey;
 
-  --todo-icon-background: #ffe0e0;
-  --link-icon-background: #fff2ea;
-
   .cards {
     display: flex;
     flex-direction: column;

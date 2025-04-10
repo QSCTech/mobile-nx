@@ -1,6 +1,6 @@
-import { DayOfWeek, toChineseDay } from '@/models/shared'
+import { toChineseDay } from '@/models/shared'
 import './Header.css'
-import dayjs from 'dayjs'
+import { Dayjs } from 'dayjs'
 
 export default function Header({
   date,
@@ -10,7 +10,7 @@ export default function Header({
   tempMax,
   tip,
 }: {
-  date: dayjs.Dayjs
+  date: Dayjs
   weekOfSemester: string
   weather: string
   tempMin: number
@@ -22,7 +22,7 @@ export default function Header({
       <div className='date'>
         {date.format('YYYY年M月D日')}
         <br />
-        {weekOfSemester} 星期{toChineseDay(date.day() as DayOfWeek)}
+        {weekOfSemester} 星期{toChineseDay(date.day())}
       </div>
       <div className='weather'>
         {weather} {tempMin}/{tempMax}&#176;C

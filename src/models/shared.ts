@@ -1,7 +1,7 @@
 /**星期几，1-7；注意与Date.prototype.getDay()的不同 */
 export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7
-/**1=>一，...，7=>日，其它throw */
-export function toChineseDay(from: DayOfWeek) {
+/**1=>一，...，0或7=>日，其它throw。支持1-7表示周一-周日；也支持0=周日，1-6表示周一-周六 */
+export function toChineseDay(from: number) {
   switch (from) {
     case 1:
       return '一'
@@ -16,6 +16,7 @@ export function toChineseDay(from: DayOfWeek) {
     case 6:
       return '六'
     case 7:
+    case 0:
       return '日'
     default:
       throw new Error('Invalid day of week')

@@ -4,13 +4,13 @@ import CurrentEvent from './CurrentEvent/CurrentEvent'
 import EventList from './EventList/EventList'
 import Card, { IconImg } from '../Card/Card'
 import { useTime } from '@/utils/hooks'
-import dayjs from 'dayjs'
+import { Dayjs } from 'dayjs'
 
 export interface TodayEvent {
   id: number
   name: string
-  startAt: dayjs.Dayjs
-  endAt: dayjs.Dayjs
+  startAt: Dayjs
+  endAt: Dayjs
   location: string
   description?: string
 }
@@ -20,7 +20,7 @@ export default function Today({ events }: { events: TodayEvent[] }) {
   //TODO 不显示已完成的事件
   return (
     <Card
-      logo={<IconImg bgColor='var(--today-icon-background)' src={icon} />}
+      icon={<IconImg bgColor='var(--today-icon-background)' src={icon} />}
       title='今日日程'
       linkHref='/schedule'
       linkTitle='查看全部>'
