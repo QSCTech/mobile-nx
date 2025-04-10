@@ -18,15 +18,15 @@ export default function Header({
   tip: string
 }) {
   return (
-    <div className="header">
-      <div className="date">
+    <div className='header'>
+      <div className='date'>
         {date.format('YYYY年M月D日')}
         <br />
         {weekOfSemester} 星期{toChineseDay(date.day() as DayOfWeek)}
       </div>
-      <div className="weather">
+      <div className='weather'>
         {weather} {tempMin}/{tempMax}&#176;C
-        <div className="tip">{tip}</div>
+        <div className='tip'>{tip}</div>
       </div>
     </div>
   )

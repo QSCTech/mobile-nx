@@ -8,14 +8,14 @@ export default function EventList({ events }: { events: TodayEvent[] }) {
     <div className={'event-list' + (events.length ? '' : ' none')}>
       {events.length ? (
         events.map((ev) => (
-          <a key={ev.id} className="item" href="/schedule">
-            <div className="info">
-              <div className="title">{ev.name}</div>
-              <div className="field">
+          <a key={ev.id} className='item' href='/schedule'>
+            <div className='info'>
+              <div className='title'>{ev.name}</div>
+              <div className='field'>
                 <img src={spot} />
                 <div>{ev.location}</div>
               </div>
-              <div className="field">
+              <div className='field'>
                 <img src={time} />
                 <div>
                   {ev.startAt.format('HH:mm') +

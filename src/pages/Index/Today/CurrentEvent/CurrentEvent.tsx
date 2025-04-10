@@ -17,23 +17,23 @@ export default function CurrentEvent({
   const timeSpan =
     event.startAt.format('HH:mm') + ' - ' + event.endAt.format('HH:mm')
   return (
-    <a className="current-event" href="/schedule">
-      <div className="prefix">距上课</div>
-      <div className="time">{timeLeft}</div>
-      <div className="title">{event.name}</div>
-      <div className="detail">
-        <div className="item">
+    <a className='current-event' href='/schedule'>
+      <div className='prefix'>距上课</div>
+      <div className='time'>{timeLeft}</div>
+      <div className='title'>{event.name}</div>
+      <div className='detail'>
+        <div className='item'>
           <img src={spot} />
-          <div className="text">{event.location}</div>
+          <div className='text'>{event.location}</div>
         </div>
-        <div className="item">
+        <div className='item'>
           <img src={time} />
-          <div className="text">{timeSpan}</div>
+          <div className='text'>{timeSpan}</div>
         </div>
         {event.description && (
-          <div className="item">
+          <div className='item'>
             <img src={remarks} />
-            <div className="text">{event.description}</div>
+            <div className='text'>{event.description}</div>
           </div>
         )}
       </div>

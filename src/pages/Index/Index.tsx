@@ -24,20 +24,13 @@ export default function Index() {
   const startUpDate = useTime(-1)
   // mock data
   const events = [
-      {
-        id: 1,
-        name: '微积分甲I',
+      ...Array.from({ length: 5 }, (_, i) => ({
+        id: i + 1,
+        name: `event${i + 1}`,
         startAt: dayjs(startUpDate).add(15, 'minute'),
         endAt: dayjs(startUpDate).add(30, 'minute'),
-        location: '紫金11港东2-201(录播)',
-        description: '小测',
-      },
-      ...Array.from({ length: 3 }, (_, i) => ({
-        id: i + 2,
-        name: `event${i + 2}`,
-        startAt: dayjs(startUpDate),
-        endAt: dayjs(startUpDate),
-        location: '紫金港东2-201(录播)',
+        location: '紫金港东0-000(录播)',
+        description: 'desc',
       })),
     ],
     weekOfSemester = '夏1周',
@@ -50,12 +43,12 @@ export default function Index() {
   const tip = tips.find((item) => item.weather === weather)?.tip ?? ''
   return (
     <IonPage>
-      <IonHeader collapse="condense">
+      <IonHeader collapse='condense'>
         <IonToolbar>
-          <IonTitle size="large">首页</IonTitle>
+          <IonTitle size='large'>首页</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="index-container">
+      <IonContent className='index-container'>
         <Header
           date={date}
           weekOfSemester={weekOfSemester}
@@ -64,7 +57,7 @@ export default function Index() {
           tempMax={tempMax}
           tip={tip}
         />
-        <div className="cards">
+        <div className='cards'>
           <Today events={events} />
         </div>
       </IonContent>

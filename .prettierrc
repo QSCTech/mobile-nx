@@ -7,5 +7,6 @@
   "semi": false,
   "arrowParens": "always",
   "quoteProps": "as-needed",
-  "printWidth": 80
+  "printWidth": 80,
+  "jsxSingleQuote": true
 }

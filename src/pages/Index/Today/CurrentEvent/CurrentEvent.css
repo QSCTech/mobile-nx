@@ -3,7 +3,7 @@
   white-space: nowrap;
   display: flex;
   flex-direction: column;
-  width: 12.5rem;
+  width: 12rem;
   justify-content: center;
   text-decoration: none;
   color: unset;
@@ -24,6 +24,7 @@
     max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
+    font-weight: bold;
   }
 
   .detail {

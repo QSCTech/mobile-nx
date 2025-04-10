@@ -7,7 +7,7 @@
     flex-direction: row;
     justify-content: space-evenly;
     padding: 0 var(--card-padding-horizontal) var(--card-padding-vertical);
-    column-gap: 0.5rem;
+    gap: 0.5rem;
   }
 
   .today-emoji {

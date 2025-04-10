@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import './Card.css'
 
 export function IconImg({ bgColor, src }: { bgColor: string; src: string }) {
-  return <img className="icon" src={src} style={{ background: bgColor }} />
+  return <img className='icon' src={src} style={{ background: bgColor }} />
 }
 
 /** Card是首页的通用组件 */
@@ -15,15 +15,15 @@ export default function Card(props: {
   children: ReactNode
 }) {
   return (
-    <div className="card">
-      <div className="head">
-        <div className="desc">
+    <div className='card'>
+      <div className='head'>
+        <div className='desc'>
           {props.logo}
           {props.title}
         </div>
         <a
           href={props.linkHref}
-          className="link"
+          className='link'
           style={{ color: props.linkColor }}
         >
           {props.linkTitle}

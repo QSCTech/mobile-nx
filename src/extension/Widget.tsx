@@ -13,11 +13,11 @@ export function Widget({ extension }: { extension: WidgetExtension }) {
   return (
     <iframe
       style={{ border: 'none', overflow: 'hidden', width: '100%' }}
-      scrolling="no"
+      scrolling='no'
       allow={['geolocation'].map((k) => `${k} 'none'`).join('; ')}
-      referrerPolicy="origin"
-      rel="external nofollow"
-      sandbox="allow-scripts allow-forms allow-same-origin"
+      referrerPolicy='origin'
+      rel='external nofollow'
+      sandbox='allow-scripts allow-forms allow-same-origin'
       ref={iframeRef}
     />
   )

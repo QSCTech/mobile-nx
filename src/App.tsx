@@ -54,30 +54,30 @@ export default function App() {
       <IonReactRouter>
         <IonTabs>
           <IonRouterOutlet>
-            <Route exact path="/">
-              <Redirect to="/index" />
+            <Route exact path='/'>
+              <Redirect to='/index' />
             </Route>
-            <Route exact path="/index">
+            <Route exact path='/index'>
               <Index />
             </Route>
-            <Route exact path="/schedule">
+            <Route exact path='/schedule'>
               <IonPage>todo</IonPage>
             </Route>
-            <Route exact path="/mine">
+            <Route exact path='/mine'>
               <IonPage>todo</IonPage>
             </Route>
           </IonRouterOutlet>
-          <IonTabBar slot="bottom">
-            <IonTabButton tab="tab1" href="/index">
-              <IonIcon aria-hidden="true" icon={index} />
+          <IonTabBar slot='bottom'>
+            <IonTabButton tab='tab1' href='/index'>
+              <IonIcon aria-hidden='true' icon={index} />
               <IonLabel>主页</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="tab2" href="/schedule">
-              <IonIcon aria-hidden="true" icon={schedule} />
+            <IonTabButton tab='tab2' href='/schedule'>
+              <IonIcon aria-hidden='true' icon={schedule} />
               <IonLabel>日程</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="tab5" href="/mine">
-              <IonIcon aria-hidden="true" icon={mine} />
+            <IonTabButton tab='tab5' href='/mine'>
+              <IonIcon aria-hidden='true' icon={mine} />
               <IonLabel>我的</IonLabel>
             </IonTabButton>
           </IonTabBar>
