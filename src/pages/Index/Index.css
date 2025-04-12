@@ -18,4 +18,26 @@
     flex-direction: column;
     gap: 0.8rem;
   }
+
+  * {
+    --scrollbar-color: #586fc21a;
+    --scrollbar-size: 0.35rem;
+    /* scrollbar-color: #586FC21A transparent;
+    scrollbar-width: thin; */
+
+    &::-webkit-scrollbar {
+      width: var(--scrollbar-size);
+      height: var(--scrollbar-size);
+      background-color: transparent;
+    }
+
+    &::-webkit-scrollbar-button {
+      display: none;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-color);
+      border-radius: calc(var(--scrollbar-size) / 2);
+    }
+  }
 }

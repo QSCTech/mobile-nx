@@ -3,15 +3,22 @@
   flex-direction: column;
   --item-gap: 0.25rem;
   --item-height: 4rem;
-  --shadow-offset: 0.1rem;
+  --shadow-offset: 1.5px;
   /**最多伸展到显示几个item */
   --max-items: 3;
-  max-height: calc(var(--max-items) * var(--item-height) + (var(--max-items) - 1) * var(--item-gap) + var(--shadow-offset));
+  max-height: calc(
+    var(--max-items) * var(--item-height) + var(--max-items) * var(--item-gap)
+  );
   gap: var(--item-gap);
-  overflow-y: auto;
   flex: 1 0;
-  /**给item阴影留出空间 */
-  padding: 0 var(--shadow-offset) var(--shadow-offset) 0;
+  /**给item阴影和滚动条（如有）留出空间 */
+  padding: 0 calc(var(--shadow-offset) + var(--scrollbar-gap, 0rem))
+    var(--item-gap) 0;
+  overflow-y: auto;
+
+  &:has(.item:nth-child(4)) {
+    --scrollbar-gap: 0.2rem;
+  }
 
   &:not(:has(.item)) {
     padding: 0;
@@ -42,7 +49,7 @@
       overflow: hidden;
 
       .title,
-      .field>div {
+      .field > div {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
