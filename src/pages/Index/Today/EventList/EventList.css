@@ -4,21 +4,19 @@
   --item-gap: 0.25rem;
   --item-height: 4rem;
   --shadow-offset: 0.1rem;
-  --item-show-count: 3;
-  max-height: calc(
-    var(--item-show-count) * var(--item-height) + (var(--item-show-count) - 1) *
-      var(--item-gap) + var(--shadow-offset)
-  );
+  /**最多伸展到显示几个item */
+  --max-items: 3;
+  max-height: calc(var(--max-items) * var(--item-height) + (var(--max-items) - 1) * var(--item-gap) + var(--shadow-offset));
   gap: var(--item-gap);
   overflow-y: auto;
   flex: 1 0;
   /**给item阴影留出空间 */
   padding: 0 var(--shadow-offset) var(--shadow-offset) 0;
 
-  &.none {
+  &:not(:has(.item)) {
     padding: 0;
     font-size: 1.25rem;
-    text-align: center;
+    align-items: center;
     justify-content: center;
     color: var(--today-list-none-color);
   }
@@ -44,7 +42,7 @@
       overflow: hidden;
 
       .title,
-      .field > div {
+      .field>div {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

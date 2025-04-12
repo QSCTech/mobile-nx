@@ -3,6 +3,7 @@
 import './polyfill'
 import './extendHeaders'
 import './extendMap'
+import './extendString'
 
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'

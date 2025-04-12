@@ -3,6 +3,7 @@
     "ionic.ionic",
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
-    "pranaygp.vscode-css-peek"
+    "pranaygp.vscode-css-peek",
+    "jacobcassidy.css-nesting-syntax-highlighting"
   ]
 }

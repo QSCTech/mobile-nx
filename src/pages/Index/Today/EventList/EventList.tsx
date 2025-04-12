@@ -5,7 +5,7 @@ import { TodayEvent } from '../Today'
 
 export default function EventList({ events }: { events: TodayEvent[] }) {
   return (
-    <div className={'event-list' + (events.length ? '' : ' none')}>
+    <div className='event-list'>
       {events.length ? (
         events.map((ev) => (
           <a key={ev.id} className='item' href='/schedule'>
