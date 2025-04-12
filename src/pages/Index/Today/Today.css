@@ -13,7 +13,7 @@
   .today-emoji {
     text-align: center;
     font-size: 1.5rem;
-    color: var(--today-emoji-color);
+    color: var(--nx-color-major);
   }
 
   .today-none {
@@ -21,6 +21,6 @@
     font-weight: bold;
     text-align: center;
     padding: 0.4rem 0.8rem 1.2rem;
-    color: var(--today-none-color);
+    color: var(--nx-color-dark);
   }
 }

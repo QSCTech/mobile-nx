@@ -20,11 +20,10 @@ export default function Today({ events }: { events: TodayEvent[] }) {
   //TODO 不显示已完成的事件
   return (
     <Card
-      icon={<IconImg bgColor='var(--today-icon-background)' src={icon} />}
+      icon={<IconImg bgColor='var(--nx-color-light)' src={icon} />}
       title='今日日程'
       linkHref='/schedule'
-      linkTitle='查看全部>'
-      linkColor='var(--today-link-color)'
+      linkTitle='查看全部 >'
     >
       <div className='today'>
         {events.length === 0 ? (

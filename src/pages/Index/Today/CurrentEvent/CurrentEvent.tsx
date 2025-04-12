@@ -18,9 +18,11 @@ export default function CurrentEvent({
     event.startAt.format('HH:mm') + ' - ' + event.endAt.format('HH:mm')
   return (
     <a className='current-event' href='/schedule'>
-      <div className='prefix'>距上课</div>
-      <div className='time'>{timeLeft}</div>
-      <div className='title'>{event.name}</div>
+      <div className='countdown'>
+        <div className='prefix'>距上课</div>
+        <div className='time'>{timeLeft}</div>
+        <div className='title'>{event.name}</div>
+      </div>
       <div className='detail'>
         <div className='item'>
           <img src={spot} />

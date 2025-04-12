@@ -67,7 +67,7 @@ export default function App() {
               <IonPage>todo</IonPage>
             </Route>
           </IonRouterOutlet>
-          <IonTabBar slot='bottom'>
+          <IonTabBar className='app-nav' slot='bottom'>
             <IonTabButton tab='tab1' href='/index'>
               <IonIcon aria-hidden='true' icon={index} />
               <IonLabel>主页</IonLabel>

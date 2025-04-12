@@ -29,6 +29,7 @@
 
     .link {
       text-decoration: none;
+      color: var(--nx-color-dark);
     }
   }
 }

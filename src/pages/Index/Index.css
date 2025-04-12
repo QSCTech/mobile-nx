@@ -7,12 +7,6 @@
   --padding-start: 1.2rem;
   --padding-end: var(--padding-start);
 
-  --today-icon-background: #e7f4f5;
-  --today-link-color: #6bb9c1;
-  --today-emoji-color: #808080;
-  --today-none-color: #fdab76;
-  --today-list-none-color: grey;
-
   .cards {
     display: flex;
     flex-direction: column;
@@ -20,10 +14,7 @@
   }
 
   * {
-    --scrollbar-color: #586fc21a;
-    --scrollbar-size: 0.35rem;
-    /* scrollbar-color: #586FC21A transparent;
-    scrollbar-width: thin; */
+    --scrollbar-size: 0.4rem;
 
     &::-webkit-scrollbar {
       width: var(--scrollbar-size);
@@ -31,13 +22,13 @@
       background-color: transparent;
     }
 
-    &::-webkit-scrollbar-button {
-      display: none;
+    &::-webkit-scrollbar-thumb {
+      background-color: #586fc21a;
+      border-radius: calc(var(--scrollbar-size) / 2);
     }
 
-    &::-webkit-scrollbar-thumb {
-      background-color: var(--scrollbar-color);
-      border-radius: calc(var(--scrollbar-size) / 2);
+    &::-webkit-scrollbar-button {
+      display: none;
     }
   }
 }

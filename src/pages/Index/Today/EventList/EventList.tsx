@@ -1,5 +1,5 @@
-import spot from './spot.svg'
-import time from './time.svg'
+import IconSpot from './spot.svg?react'
+import IconTime from './time.svg?react'
 import './EventList.css'
 import { TodayEvent } from '../Today'
 
@@ -11,16 +11,18 @@ export default function EventList({ events }: { events: TodayEvent[] }) {
           <a key={ev.id} className='item' href='/schedule'>
             <div className='info'>
               <div className='title'>{ev.name}</div>
-              <div className='field'>
-                <img src={spot} />
-                <div>{ev.location}</div>
-              </div>
-              <div className='field'>
-                <img src={time} />
-                <div>
-                  {ev.startAt.format('HH:mm') +
-                    ' - ' +
-                    ev.endAt.format('HH:mm')}
+              <div className='detail'>
+                <div className='field'>
+                  <IconSpot />
+                  <div>{ev.location}</div>
+                </div>
+                <div className='field'>
+                  <IconTime />
+                  <div>
+                    {ev.startAt.format('HH:mm') +
+                      ' - ' +
+                      ev.endAt.format('HH:mm')}
+                  </div>
                 </div>
               </div>
             </div>

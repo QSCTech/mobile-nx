@@ -26,7 +26,8 @@ export default function Header({
       </div>
       <div className='weather'>
         {weather} {tempMin}/{tempMax}&#176;C
-        <div className='tip'>{tip}</div>
+        <br />
+        {tip}
       </div>
     </div>
   )

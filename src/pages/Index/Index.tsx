@@ -26,7 +26,7 @@ export default function Index() {
   const events = [
       ...Array.from({ length: 5 }, (_, i) => ({
         id: i + 1,
-        name: `event${i + 1}`,
+        name: `微积分-event${i + 1}`,
         startAt: dayjs(startUpDate).add(15, 'minute'),
         endAt: dayjs(startUpDate).add(30, 'minute'),
         location: '紫金港东0-000(录播)',

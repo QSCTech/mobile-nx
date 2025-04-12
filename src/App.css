@@ -1,5 +1,5 @@
-/* For information on how to create your own theme, please see:
-http://ionicframework.com/docs/theming/ */
+@import url('./theme.css');
+
 @font-face {
   font-family: 'OPPO Sans';
   src: url('./font/OPPOSans-Regular.ttf') format('truetype');
@@ -25,9 +25,12 @@ http://ionicframework.com/docs/theming/ */
 :root {
   color-scheme: only light;
 
-  ion-tab-button {
-    --color: grey;
-    --color-selected: #128f9d;
-    /* 选中时颜色 */
+  * {
+    line-height: 1em;
+  }
+
+  .app-nav > ion-tab-button {
+    --color: var(--nx-color-unselected);
+    --color-selected: var(--nx-color-dark);
   }
 }
