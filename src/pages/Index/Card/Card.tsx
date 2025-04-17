@@ -1,8 +1,9 @@
 import { ReactNode } from 'react'
 import './Card.css'
+import { IonRouterLink } from '@ionic/react'
 
 export function IconImg({ bgColor, src }: { bgColor: string; src: string }) {
-  return <img className='icon' src={src} style={{ background: bgColor }} />
+  return <img className='card-icon' src={src} style={{ background: bgColor }} />
 }
 
 /** Card是首页的通用组件 */
@@ -21,13 +22,13 @@ export default function Card(props: {
           {props.icon}
           {props.title}
         </div>
-        <a
-          href={props.linkHref}
+        <IonRouterLink
+          routerLink={props.linkHref}
           className='link'
           style={{ color: props.linkColor }}
         >
           {props.linkTitle}
-        </a>
+        </IonRouterLink>
       </div>
       {props.children}
     </div>

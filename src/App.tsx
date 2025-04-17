@@ -4,6 +4,7 @@ import {
   IonIcon,
   IonLabel,
   IonPage,
+  IonRouterLink,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
@@ -43,46 +44,95 @@ import '@ionic/react/css/display.css'
 /* import '@ionic/react/css/palettes/dark.class.css'; */
 // import '@ionic/react/css/palettes/dark.system.css'
 
-/* Theme variables */
+/* Global stylesheets and theme variables */
 import './App.css'
+import GradePage from './pages/GradePage/GradePage'
+import CourseSchedule from './pages/CourseSchedule/CourseSchedule'
+import { useEffect, useMemo, useState } from 'react'
+import { RenewService } from './services/RenewService'
+import { CourseCombinedContext } from './context/CourseCombinedContext'
+import { LastUpdatedContext } from './context/LastUpdatedContext'
 
-setupIonicReact()
+setupIonicReact({ mode: 'md' })
 
 export default function App() {
+  const renewService = useMemo(() => new RenewService(), [])
+  useEffect(() => {
+    void renewService
+      .read()
+      .then(() => renewService.autoRenew())
+      .then(setCourseCombined)
+  }, [renewService])
+  const [courseCombined, setCourseCombined] = useState(
+    renewService.courseCombined,
+  )
+
   return (
     <IonApp>
-      <IonReactRouter>
-        <IonTabs>
-          <IonRouterOutlet>
-            <Route exact path='/'>
-              <Redirect to='/index' />
-            </Route>
-            <Route exact path='/index'>
-              <Index />
-            </Route>
-            <Route exact path='/schedule'>
-              <IonPage>todo</IonPage>
-            </Route>
-            <Route exact path='/mine'>
-              <IonPage>todo</IonPage>
-            </Route>
-          </IonRouterOutlet>
-          <IonTabBar className='app-nav' slot='bottom'>
-            <IonTabButton tab='tab1' href='/index'>
-              <IonIcon aria-hidden='true' icon={index} />
-              <IonLabel>主页</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab='tab2' href='/schedule'>
-              <IonIcon aria-hidden='true' icon={schedule} />
-              <IonLabel>日程</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab='tab5' href='/mine'>
-              <IonIcon aria-hidden='true' icon={mine} />
-              <IonLabel>我的</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonReactRouter>
+      <CourseCombinedContext.Provider value={courseCombined}>
+        <LastUpdatedContext.Provider value={renewService.lastUpdated}>
+          <AppRouter />
+        </LastUpdatedContext.Provider>
+      </CourseCombinedContext.Provider>
     </IonApp>
+  )
+}
+
+function AppRouter() {
+  return (
+    <IonReactRouter>
+      <IonTabs>
+        <IonRouterOutlet animated>
+          <Route exact path='/'>
+            <Redirect to='/index' />
+          </Route>
+          <Route exact path='/index'>
+            <Index />
+          </Route>
+          <Route exact path='/schedule'>
+            <IonPage>todo</IonPage>
+          </Route>
+          <Route exact path='/mine'>
+            <IonPage>
+              <IonRouterLink routerDirection='forward' routerLink='/grade'>
+                grade
+              </IonRouterLink>
+              <IonRouterLink
+                routerDirection='forward'
+                routerLink='/courseSchedule'
+              >
+                courseSchedule
+              </IonRouterLink>
+            </IonPage>
+          </Route>
+          <Route exact path='/grade'>
+            <GradePage />
+          </Route>
+          <Route exact path='/courseSchedule'>
+            <CourseSchedule />
+          </Route>
+        </IonRouterOutlet>
+        <AppNav />
+      </IonTabs>
+    </IonReactRouter>
+  )
+}
+
+function AppNav() {
+  return (
+    <IonTabBar className='app-nav' slot='bottom'>
+      <IonTabButton tab='index' href='/index'>
+        <IonIcon aria-hidden='true' icon={index} />
+        <IonLabel>主页</IonLabel>
+      </IonTabButton>
+      <IonTabButton tab='schedule' href='/schedule'>
+        <IonIcon aria-hidden='true' icon={schedule} />
+        <IonLabel>日程</IonLabel>
+      </IonTabButton>
+      <IonTabButton tab='mine' href='/mine'>
+        <IonIcon aria-hidden='true' icon={mine} />
+        <IonLabel>我的</IonLabel>
+      </IonTabButton>
+    </IonTabBar>
   )
 }
