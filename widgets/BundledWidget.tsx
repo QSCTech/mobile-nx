@@ -6,7 +6,7 @@ import { Widget } from '@/extension/Widget'
  *
  * 请勿修改此组件的props。
  */
-export default function BundledWidget() {
+export default function BundledWidgets() {
   const widgetExts = useMemo(
     () => [
       newWidgetExtension(
