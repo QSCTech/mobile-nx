@@ -3,18 +3,14 @@ import { IonButton, IonButtons, IonPage } from '@ionic/react'
 import IconCourseSchedule from './iconCourseSchedule.svg?react'
 import IconEye from './eye.svg?react'
 import CourseTimetable from './CourseTimetable/CourseTimetable'
-import {
-  fromSemesterNumber,
-  Semester,
-  toSemesterNumber,
-  toSingleSemesters,
-} from '@/models/Semester'
+import { Semester, toSingleSemesters } from '@/models/Semester'
 import './CourseSchedule.css'
 import Toolbar from '@/components/Toolbar/Toolbar'
 import SemesterSegment from '@/components/SemesterSegment/SemesterSegment'
 import { CourseCombinedContext } from '@/context/CourseCombinedContext'
 import { CourseBase } from '@/models/CourseBase'
 import { CourseClassInfo } from '@/models/CourseClassInfo'
+import { getMentionedSemesters } from '@/models/CourseCombined'
 
 export default function CourseSchedule() {
   //TODO 这个页面的布局还需要调整一下
@@ -23,19 +19,15 @@ export default function CourseSchedule() {
   const [currentSemester, setCurrentSemester] = useState<Semester | null>(null)
   const [isTextVisible, setIsTextVisible] = useState(true)
 
+  //可选择的学期列表
   const semesterList = useMemo(
     () =>
-      new Set(
-        courseCombined
-          .map((c) => toSingleSemesters(c.semester))
-          .flat(1)
-          .map((s) => toSemesterNumber(s)),
-      )
-        .keys()
-        .map((n) => fromSemesterNumber(n))
-        .toArray(),
+      getMentionedSemesters(courseCombined, (c) =>
+        toSingleSemesters(c.semester),
+      ),
     [courseCombined],
   )
+  //当前选项下的课程列表
   const courseFiltered = useMemo(
     () =>
       courseCombined.filter((course) => {
