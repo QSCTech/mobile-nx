@@ -3,63 +3,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-
-  .event {
-    padding: .75rem 1.5rem;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: .5rem;
-
-
-    box-shadow: 1px 1px 1px 0px #0c3a371a;
-    background: white;
-
-    border-radius: 0.5rem;
-    overflow: hidden;
-
-    position: relative;
-
-    &::before {
-      position: absolute;
-      top: 0;
-      left: 0;
-      content: ' ';
-      width: 0.75rem;
-      height: 100%;
-      background: var(--ribbon-background);
-    }
-
-    .info {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      gap: .25rem;
-
-      &>* {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        max-width: 100%;
-        overflow: hidden;
-      }
-
-      .title {
-        font-size: 1.1rem;
-      }
-
-      .location {
-        font-size: .8rem;
-      }
-    }
-
-    .time {
-      flex: 0 0 auto;
-      justify-self: end;
-      display: flex;
-      align-items: center;
-      font-size: .9rem;
-    }
-  }
 }
 
 .modal-event-detail {
@@ -67,7 +10,7 @@
 
   .event-detail {
     padding: 0 1rem;
-    --vertical-space: .75rem;
+    --vertical-space: 0.75rem;
     overflow: auto;
 
     &>.header {
@@ -80,7 +23,7 @@
         flex-direction: row;
         align-items: center;
         font-weight: bold;
-        gap: .5rem;
+        gap: 0.5rem;
         font-size: 1.2rem;
 
         .icon {

@@ -5,6 +5,7 @@ import './Index.css'
 import { useTime } from '@/utils/hooks'
 import dayjs from 'dayjs'
 import BundledWidgets from '../../../widgets/BundledWidget'
+import Todo from './Todo/Todo'
 
 const tips = [
   { weather: '下雨', tip: '今日有雨，记得带伞哦！' },
@@ -34,6 +35,7 @@ export default function Index() {
   const date = useTime(1000 * 5)
 
   const tip = tips.find((item) => item.weather === weather)?.tip ?? ''
+
   return (
     <IonPage>
       <IonContent className='index-container'>
@@ -47,6 +49,7 @@ export default function Index() {
         />
         <div className='cards'>
           <Today events={events} />
+          <Todo />
           <BundledWidgets />
         </div>
       </IonContent>
